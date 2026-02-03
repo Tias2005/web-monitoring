@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../styles/global.css"; 
 
 export default function Login() {
@@ -7,21 +8,34 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
+    setError(""); // Reset error setiap klik tombol
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:8000/api/login", {
+      const res = await axios.post("http://localhost:8000/api/login", {
         email_user: email,
         password_user: password,
       });
-      alert("Login success!");
+
+      // Jika res.data ada, berarti benar-benar sukses
+      if (res.data) {
+        localStorage.setItem("user", JSON.stringify(res.data.data));
+        alert("Login Berhasil!");
+        navigate("/dashboard");
+      }
+      
     } catch (err) {
-      setError("Email atau password salah.");
+      // Teks merah hanya akan muncul jika memang ada error dari server
+      const msg = err.response?.data?.message || "Email atau password salah.";
+      setError(msg);
     } finally {
+      // Pastikan loading berhenti, tapi jangan reset error di sini
       setLoading(false);
     }
   };
@@ -34,6 +48,7 @@ export default function Login() {
           <p className="login-subtitle">Silakan login ke akun Admin Anda</p>
         </div>
 
+        {/* Hanya muncul jika state error berisi teks */}
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleLogin} className="login-form">
@@ -41,8 +56,8 @@ export default function Login() {
             <label className="input-label">Email</label>
             <input
               type="email"
-              placeholder="name@gmail.com"
               className="login-input"
+              placeholder="example@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -53,8 +68,8 @@ export default function Login() {
             <label className="input-label">Password</label>
             <input
               type="password"
-              placeholder="••••••••"
               className="login-input"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

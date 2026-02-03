@@ -1,4 +1,4 @@
-/* Reset & Base Font */
+/* LOGIN LAYOUT */
 body {
   margin: 0;
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
@@ -129,4 +129,126 @@ body {
   text-align: center;
   font-size: 13px;
   color: #6b7280;
+}
+
+/* --- DASHBOARD LAYOUT --- */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.dashboard-layout {
+  display: flex;
+  width: 100vw; 
+  min-height: 100vh;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 260px;
+  background: #0f172a; 
+  color: #fff;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+}
+
+.sidebar-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #6366f1;
+  margin-bottom: 40px;
+  padding-left: 10px;
+  letter-spacing: -0.5px;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.sidebar-link.logout {
+  margin-top: auto; 
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.sidebar-link.logout:hover {
+  background: #f87171;
+  color: #fff;
+}
+
+.dashboard-content {
+  flex: 1; 
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+  min-width: 0;
+}
+
+.dashboard-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 24px;
+  margin-top: 30px;
+  width: 100%; 
+}
+
+.card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.card p {
+  font-size: 36px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
 }
