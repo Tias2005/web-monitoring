@@ -14,9 +14,9 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await axios.post("http://127.0.0.1:8000/api/login", {
-        email: email,
-        password: password,
+      await axios.post("http://localhost:8000/api/login", {
+        email_user: email,
+        password_user: password,
       });
       alert("Login success!");
     } catch (err) {

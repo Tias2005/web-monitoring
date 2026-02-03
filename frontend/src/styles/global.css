@@ -67,6 +67,18 @@ body {
   outline: none;
   transition: all 0.2s ease;
   background-color: #f9fafb;
+  color: #000000;
+}
+
+.login-input::placeholder {
+  color: #9ca3af; 
+}
+
+.login-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: #1f2937; 
 }
 
 .login-input:focus {
