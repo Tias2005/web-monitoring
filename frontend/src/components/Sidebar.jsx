@@ -15,8 +15,10 @@ export default function Sidebar() {
 
       <nav style={{ flexGrow: 1 }}>
         <Link to="/dashboard" className="sidebar-link">Dashboard</Link>
-        <Link to="/users" className="sidebar-link">Karyawan</Link>
-        <Link to="/absensi" className="sidebar-link">Absensi</Link>
+        <Link to="/karyawan" className="sidebar-link">Data Karyawan</Link>
+        <Link to="/presensi" className="sidebar-link">Presensi</Link>
+        <Link to="/pengajuan" className="sidebar-link">Pengajuan</Link>
+        <Link to="/laporan" className="sidebar-link">Laporan</Link>
       </nav>
 
       <a href="#" onClick={handleLogout} className="sidebar-link logout">
