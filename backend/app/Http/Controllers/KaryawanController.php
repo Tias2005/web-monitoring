@@ -10,7 +10,6 @@ use App\Exports\KaryawanExport;
 
 class KaryawanController extends Controller
 {
-    // Ambil semua user dengan id_role 2
     public function index() {
         $data = MtUser::where('id_role', 2)->get();
         return response()->json($data);
@@ -27,6 +26,7 @@ class KaryawanController extends Controller
             'no_telepon'        => 'nullable|string',
             'alamat'            => 'nullable|string',
             'tanggal_bergabung' => 'required|date',
+            'status_user' => 'required|integer',
         ]);
 
         $validated['id_role'] = 2; 
@@ -45,14 +45,24 @@ class KaryawanController extends Controller
         return MtUser::findOrFail($id);
     }
 
-    public function update(Request $request, $id) {
-        $user = MtUser::findOrFail($id);
-        $data = $request->all();
-        if ($request->password_user) {
-            $data['password_user'] = Hash::make($request->password_user);
-        }
-        $user->update($data);
-        return response()->json(['message' => 'Data diperbarui']);
+    public function update(Request $request, $id)
+    {
+        $karyawan = MtUser::findOrFail($id);
+
+        $validated = $request->validate([
+            'nama_user'         => 'required|string|max:255',
+            'email_user'        => 'required|email|unique:mt_user,email_user,' . $id . ',id_user',
+            'id_jabatan'        => 'required|integer',
+            'id_divisi'         => 'required|integer',
+            'no_telepon'        => 'nullable|string',
+            'alamat'            => 'nullable|string',
+            'tanggal_bergabung' => 'required|date',
+            'status_user' => 'required|integer',
+        ]);
+
+        $karyawan->update($validated);
+
+        return response()->json(['message' => 'Data karyawan berhasil diperbarui', 'data' => $karyawan]);
     }
 
     public function destroy($id) {
