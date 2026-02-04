@@ -16,17 +16,29 @@ class KaryawanController extends Controller
         return response()->json($data);
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validated = $request->validate([
-            'nama_user' => 'required',
-            'email_user' => 'required|email|unique:mt_user',
-            'password_user' => 'required|min:6',
-            'id_role' => 'required'
+            'nama_user'         => 'required|string|max:255',
+            'email_user'        => 'required|email|unique:mt_user,email_user',
+            'password_user'     => 'required|min:6',
+            'id_jabatan'        => 'nullable|integer',
+            'id_divisi'         => 'nullable|integer',
+            'no_telepon'        => 'nullable|string',
+            'alamat'            => 'nullable|string',
+            'tanggal_bergabung' => 'required|date',
         ]);
 
+        $validated['id_role'] = 2; 
+        $validated['status_karyawan'] = 1; 
         $validated['password_user'] = Hash::make($request->password_user);
+
         $user = MtUser::create($validated);
-        return response()->json(['message' => 'Karyawan berhasil ditambah', 'data' => $user]);
+
+        return response()->json([
+            'message' => 'Karyawan berhasil ditambahkan!',
+            'data' => $user
+        ], 201);
     }
 
     public function show($id) {
