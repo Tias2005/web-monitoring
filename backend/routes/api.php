@@ -8,6 +8,7 @@ use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\MtJabatanController;
 use App\Http\Controllers\MtDivisiController;
 use App\Http\Controllers\MtPresensiController;
+use App\Http\Controllers\MtPengajuanController;
 
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -32,3 +33,9 @@ Route::get('/jabatan', [MtJabatanController::class, 'getJabatan']);
 Route::get('/divisi', [MtDivisiController::class, 'getDivisi']);
 
 Route::get('/presensi', [MtPresensiController::class, 'index']);
+
+Route::prefix('pengajuan')->group(function () {
+    Route::get('/', [MtPengajuanController::class, 'index']);
+    Route::get('/{id}', [MtPengajuanController::class, 'show']);
+    Route::get('/download/{id}', [MtPengajuanController::class, 'download']);
+});
