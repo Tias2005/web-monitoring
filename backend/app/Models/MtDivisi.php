@@ -11,4 +11,8 @@ class MtDivisi extends Model {
     const UPDATED_AT = 'updated_at';
     
     protected $fillable = ['nama_divisi'];
+
+    public function user() {
+    return $this->hasMany(MtUser::class, 'id_divisi', 'id_divisi');
+}
 }

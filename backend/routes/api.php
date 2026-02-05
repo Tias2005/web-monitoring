@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MtRoleController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\MtJabatanController;
@@ -17,6 +18,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);
 
 Route::get('/roles', [MtRoleController::class, 'index']);
 Route::post('/roles', [MtRoleController::class, 'store']);
