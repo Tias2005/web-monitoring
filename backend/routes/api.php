@@ -11,7 +11,9 @@ use App\Http\Controllers\MtDivisiController;
 use App\Http\Controllers\MtPresensiController;
 use App\Http\Controllers\MtPengajuanController;
 use App\Http\Controllers\LaporanController;
-
+use App\Http\Controllers\MtJamKerjaController;
+use App\Http\Controllers\MtHariKerjaController;
+use App\Http\Controllers\MtHariLiburController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::put('/user/update/{id}', [AuthController::class, 'updateProfile']);
@@ -47,3 +49,13 @@ Route::prefix('pengajuan')->group(function () {
 
 Route::get('/laporan', [LaporanController::class, 'index']);
 Route::get('/laporan/export', [LaporanController::class, 'exportExcel']);
+
+Route::get('/jam-kerja', [MtJamKerjaController::class, 'index']);
+Route::put('/jam-kerja/{id}', [MtJamKerjaController::class, 'update']);
+
+Route::get('/hari-kerja', [MtHariKerjaController::class, 'index']);
+Route::put('/hari-kerja/{id}', [MtHariKerjaController::class, 'update']);
+
+Route::get('/hari-libur', [MtHariLiburController::class, 'index']);
+Route::post('/hari-libur', [MtHariLiburController::class, 'store']);
+Route::delete('/hari-libur/{id}', [MtHariLiburController::class, 'destroy']);
