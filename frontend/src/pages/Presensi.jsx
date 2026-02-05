@@ -61,10 +61,12 @@ const Presensi = () => {
                   <span>{item.user?.jabatan?.nama_jabatan}</span>
                 </div>
                 <div className="status-info">
-                  <span className={`time-status ${item.status_presensi === 1 ? 'text-green' : 'text-red'}`}>
-                    {item.status_presensi === 1 ? 'Tepat Waktu' : 'Terlambat'}
+                  <span className={`time-status ${item.id_status_presensi === 1 ? 'text-green' : 'text-red'}`}>
+                      {item.status_presensi?.nama_status_presensi || (item.id_status_presensi === 1 ? 'Tepat Waktu' : 'Terlambat')}
+                    </span>
+                  <span className="work-cat">
+                    {item.kategori_kerja?.nama_kategori_kerja || (item.id_kategori_kerja === 1 ? 'WFO' : 'WFA')}
                   </span>
-                  <span className="work-cat">{item.kategori_kerja === 1 ? 'WFO' : 'WFA'}</span>
                 </div>
               </div>
             ))}
@@ -79,8 +81,8 @@ const Presensi = () => {
                 <div className="detail-row"><span>Jabatan</span><strong>{selectedDetail.user?.jabatan?.nama_jabatan}</strong></div>
                 <div className="detail-row"><span>Waktu Check In</span><strong>{selectedDetail.jam_masuk ? selectedDetail.jam_masuk.substring(11, 16) : "-"}</strong></div>
                 <div className="detail-row"><span>Lokasi</span><strong>{selectedDetail.lokasi}</strong></div>
-                <div className="detail-row"><span>Kategori</span><strong>{selectedDetail.kategori_kerja === 1 ? 'Work From Office (WFO)' : 'Work From Anywhere (WFA)'}</strong></div>
-                <div className="detail-row"><span>Status</span><strong className={selectedDetail.status_presensi === 1 ? 'text-green' : 'text-red'}>{selectedDetail.status_presensi === 1 ? 'Tepat Waktu' : 'Terlambat'}</strong></div>
+                <div className="detail-row"><span>Kategori</span><strong>{selectedDetail.kategori_kerja?.nama_kategori_kerja || (selectedDetail.id_kategori_kerja === 1 ? 'WFO' : 'WFA')}</strong></div>
+                <div className="detail-row"><span>Status</span><strong className={selectedDetail.id_status_presensi === 1 ? 'text-green' : 'text-red'}>{selectedDetail.status_presensi?.nama_status_presensi || (selectedDetail.id_status_presensi === 1 ? 'Tepat Waktu' : 'Terlambat')}</strong></div>              
               </div>
             ) : (
               <div className="empty-state">
