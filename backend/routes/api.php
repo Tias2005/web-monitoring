@@ -7,6 +7,8 @@ use App\Http\Controllers\MtRoleController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\MtJabatanController;
 use App\Http\Controllers\MtDivisiController;
+use App\Http\Controllers\MtPresensiController;
+
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -28,3 +30,5 @@ Route::prefix('karyawan')->group(function () {
 
 Route::get('/jabatan', [MtJabatanController::class, 'getJabatan']);
 Route::get('/divisi', [MtDivisiController::class, 'getDivisi']);
+
+Route::get('/presensi', [MtPresensiController::class, 'index']);

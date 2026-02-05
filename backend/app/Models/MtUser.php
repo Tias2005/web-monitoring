@@ -37,4 +37,14 @@ class MtUser extends Authenticatable
     protected $hidden = [
         'password_user',
     ];
+
+        public function jabatan()
+    {
+        return $this->belongsTo(MtJabatan::class, 'id_jabatan', 'id_jabatan');
+    }
+
+    public function divisi()
+    {
+        return $this->belongsTo(MtDivisi::class, 'id_divisi', 'id_divisi');
+    }
 }
