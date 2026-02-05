@@ -707,3 +707,57 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .text-green { color: #10b981 !important; font-weight: bold; }
 .text-red { color: #ef4444 !important; font-weight: bold; }
+
+/* --- PENGAJUAN LAYOUT --- */
+.text-blue {
+    color: #6366f1 !important;
+    font-weight: bold;
+}
+
+.download-box {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.download-box:hover {
+    border-color: #6366f1;
+    background: #f8fafc;
+}
+
+.btn-download-action {
+    background: #1e293b;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-download-action:hover {
+    background: #334155;
+}
+
+.btn-download {
+    background: none;
+    border: none;
+    color: #1e293b;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.download-box i {
+    font-size: 1.5rem;
+    color: #64748b;
+    margin-right: 10px;
+}

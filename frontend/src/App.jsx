@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Karyawan from "./pages/Karyawan";
 import Presensi from "./pages/Presensi";
+import Pengajuan from "./pages/Pengajuan";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/karyawan" element={<Karyawan />} />
         <Route path="/presensi" element={<Presensi />} />
+        <Route path="/pengajuan" element={<Pengajuan />} />
       </Routes>
     </BrowserRouter>
   );
