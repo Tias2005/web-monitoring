@@ -6,7 +6,6 @@ import Swal from "sweetalert2";
 
 export default function Penjadwalan() {
   const [data, setData] = useState({ jam_kerja: [], hari_kerja: [], hari_libur: [] });
-  // State untuk menampung input jam kerja yang sedang diedit
   const [formJam, setFormJam] = useState({});
 
   useEffect(() => {
@@ -22,7 +21,7 @@ export default function Penjadwalan() {
         ]);
 
         setData({
-        jam_kerja: resJam.data ? [resJam.data] : [], // jadikan array agar map tidak error
+        jam_kerja: resJam.data ? [resJam.data] : [], 
         hari_kerja: resHari.data,
         hari_libur: resLibur.data
         });
@@ -63,7 +62,6 @@ export default function Penjadwalan() {
         <Header title="Penjadwalan Kerja" />
 
         <div className="penjadwalan-container">
-          {/* --- Section 1: Work Schedule Settings --- */}
           <div className="schedule-card">
             <h3>Pengaturan Jam Kerja</h3>
             <div className="jam-grid">
@@ -103,7 +101,6 @@ export default function Penjadwalan() {
           </div>
 
           <div className="bottom-grid">
-            {/* --- Section 2: Weekly Off Days --- */}
             <div className="schedule-card">
               <h3>Hari Kerja Mingguan</h3>
               <table className="mini-table">
@@ -136,7 +133,6 @@ export default function Penjadwalan() {
               </table>
             </div>
 
-            {/* --- Section 3: Upcoming Holidays --- */}
             <div className="schedule-card">
               <h3>Hari Libur Mendatang</h3>
               <div className="holiday-list">
