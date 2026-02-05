@@ -142,7 +142,7 @@ export default function Karyawan() {
           </div>
         </div>
 
-<div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginBottom: '20px' }}>
           <button onClick={() => window.open("http://localhost:8000/api/karyawan/export", "_blank")} className="btn-export-top">
              EXPORT DATA
           </button>
@@ -165,9 +165,17 @@ export default function Karyawan() {
                 <td>{item.nama_user}</td>
                 <td>{item.email_user}</td>
                 <td className="actions" style={{ textAlign: 'center' }}>
-                  <button className="view" onClick={() => handleView(item)}>👁️</button>
-                  <button className="edit" onClick={() => handleEdit(item)}>✏️</button>
-                  <button onClick={() => deleteKaryawan(item.id_user)} className="delete">🗑️</button>
+                  <button className="view" onClick={() => handleView(item)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <img src="/logo/logo_detail.png" alt="Detail" style={{ width: '20px', height: '20px' }} />
+                  </button>
+
+                  <button className="edit" onClick={() => handleEdit(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', margin: '0 10px' }}>
+                    <img src="/logo/logo_edit.png" alt="Edit" style={{ width: '20px', height: '20px' }} />
+                  </button>
+
+                  <button className="delete" onClick={() => deleteKaryawan(item.id_user)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <img src="/logo/logo_hapus.png" alt="Hapus" style={{ width: '20px', height: '20px' }} />
+                  </button>
                 </td>
               </tr>
             ))}
