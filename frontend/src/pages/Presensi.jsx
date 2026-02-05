@@ -28,22 +28,22 @@ const Presensi = () => {
       <div className="dashboard-content">
         <Header title="Presensi" />
 
-        <div className="dashboard-cards" style={{ marginBottom: '20px' }}>
-          <div className="card">
-            <h3>TEPAT WAKTU</h3>
-            <p>{stats.tepat_waktu || 0}</p>
+        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginTop: '20px', marginBottom: '20px' }}>
+          <div className="stat-card">
+            <h3>{stats.tepat_waktu || 0}</h3>
+            <p>Tepat Waktu</p>
           </div>
-          <div className="card">
-            <h3>TERLAMBAT</h3>
-            <p>{stats.terlambat || 0}</p>
+          <div className="stat-card">
+            <h3>{stats.terlambat || 0}</h3>
+            <p>Terlambat</p>
           </div>
-          <div className="card">
-            <h3>WORK FROM OFFICE (WFO)</h3>
-            <p>{stats.wfo || 0}</p>
+          <div className="stat-card">
+            <h3>{stats.wfo || 0}</h3>
+            <p>Total WFO</p>
           </div>
-          <div className="card">
-            <h3>WORK FROM ANYWAY (WFA)</h3>
-            <p>{stats.wfa || 0}</p>
+          <div className="stat-card">
+            <h3>{stats.wfa || 0}</h3>
+            <p>Total WFA</p>
           </div>
         </div>
 

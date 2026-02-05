@@ -57,7 +57,7 @@ const Laporan = () => {
         <div className="presensi-container">
           <div className="filter-laporan-container">
             <button className="btn-export-top" onClick={handleExport}>
-              <i className="fas fa-file-excel"></i> EXCEL REKAP
+              <i className="fas fa-file-excel"></i> EXPORT REKAP
             </button>
             <select value={tahun} onChange={(e) => setTahun(e.target.value)} className="filter-select">
               {daftarTahun.map(t => <option key={t} value={t}>{t}</option>)}

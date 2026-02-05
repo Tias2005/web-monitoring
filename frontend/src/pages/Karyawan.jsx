@@ -127,15 +127,28 @@ export default function Karyawan() {
       <div className="dashboard-content">
         <Header title="Data Karyawan" />
 
-        <div className="dashboard-cards" style={{ marginBottom: '20px' }}>
-          <div className="card"><h3>TOTAL KARYAWAN</h3><p>{karyawan.length}</p></div>
-          <div className="card"><h3>STATUS AKTIF</h3><p>{karyawan.filter(k => k.status_user == 1 || k.status_user == "1").length}</p></div>
-          <div className="card"><h3>STATUS TIDAK AKTIF</h3><p>{karyawan.filter(k => k.status_user == 0 || k.status_user == "0").length}</p></div>
+        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginTop: '20px', marginBottom: '20px' }}>
+          <div className="stat-card">
+            <h3>{karyawan.length}</h3>
+            <p>Total Karyawan</p>
+          </div>
+          <div className="stat-card">
+            <h3>{karyawan.filter(k => k.status_user == 1 || k.status_user == "1").length}</h3>
+            <p>Status Aktif</p>
+          </div>
+          <div className="stat-card">
+            <h3>{karyawan.filter(k => k.status_user == 0 || k.status_user == "0").length}</h3>
+            <p>Status Tidak Aktif</p>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginBottom: '20px' }}>
-          <button onClick={() => window.open("http://localhost:8000/api/karyawan/export", "_blank")} className="btn-export">Export Excel</button>
-          <button onClick={() => { setIsEdit(false); setIsDetail(false); setFormData(initialFormState); setShowModal(true); }} className="btn-add"> Tambah Karyawan</button>        
+<div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginBottom: '20px' }}>
+          <button onClick={() => window.open("http://localhost:8000/api/karyawan/export", "_blank")} className="btn-export-top">
+             EXPORT DATA
+          </button>
+          <button onClick={() => { setIsEdit(false); setIsDetail(false); setFormData(initialFormState); setShowModal(true); }} className="btn-add">
+             Tambah Karyawan
+          </button>         
         </div>
 
         <table className="custom-table">

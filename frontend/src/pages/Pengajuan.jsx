@@ -45,7 +45,6 @@ const Pengajuan = () => {
         <Header title="Pengajuan" />
 
         <div className="presensi-container">
-          {/* Grid Statistik - 3 kolom */}
           <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginTop: '20px' }}>
             <div className="stat-card">
               <h3>{stats.total_izin}</h3>
@@ -62,7 +61,6 @@ const Pengajuan = () => {
           </div>
 
           <div className="main-content-presensi">
-            {/* List Pengajuan (Kiri) */}
             <div className="presensi-list">
               <h3 className="section-title">Izin/Cuti/Lembur Hari Ini</h3>
               {listPengajuan.length > 0 ? (
@@ -89,7 +87,6 @@ const Pengajuan = () => {
               )}
             </div>
 
-            {/* Detail Pengajuan (Kanan) */}
             <div className="detail-panel">
               {selectedPengajuan ? (
                 <div className="detail-content">
