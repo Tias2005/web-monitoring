@@ -27,4 +27,14 @@ class MtPresensi extends Model
     {
         return $this->belongsTo(MtUser::class, 'id_user', 'id_user');
     }
+
+    public function statusPresensi()
+    {
+        return $this->belongsTo(MtStatusPresensi::class, 'id_status_presensi', 'id_status_presensi');
+    }
+
+    public function kategoriKerja()
+    {
+        return $this->belongsTo(MtKategoriKerja::class, 'id_kategori_kerja', 'id_kategori_kerja');
+    }
 }
