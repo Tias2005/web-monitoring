@@ -13,15 +13,15 @@ class MtPresensiController extends Controller
     {
         $today = Carbon::today()->toDateString();
 
-        $presensi = MtPresensi::with(['user.jabatan', 'user.divisi'])
-            ->whereDate('tanggal', $today)
-            ->get();
+        $presensi = MtPresensi::with(['user.jabatan', 'user.divisi', 'statusPresensi', 'kategoriKerja'])
+                ->whereDate('tanggal', $today)
+                ->get();
 
         $stats = [
-            'tepat_waktu' => $presensi->where('status_presensi', 1)->count(),
-            'terlambat'   => $presensi->where('status_presensi', 0)->count(),
-            'wfo'         => $presensi->where('kategori_kerja', 1)->count(),
-            'wfa'         => $presensi->where('kategori_kerja', 0)->count(),
+            'tepat_waktu' => $presensi->where('id_status_presensi', 1)->count(),
+            'terlambat'   => $presensi->where('id_status_presensi', 2)->count(),
+            'wfo'         => $presensi->where('id_kategori_kerja', 1)->count(),
+            'wfa'         => $presensi->where('id_kategori_kerja', 2)->count(),
             'total'       => $presensi->count()
         ];
 

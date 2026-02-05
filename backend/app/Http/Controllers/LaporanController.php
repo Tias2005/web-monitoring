@@ -25,6 +25,7 @@ public function index(Request $request)
             $presensi = MtPresensi::where('id_user', $user->id_user)
                 ->whereMonth('tanggal', $bulan)
                 ->whereYear('tanggal', $tahun)
+                ->with(['statusPresensi', 'kategoriKerja']) 
                 ->get();
 
             $pengajuan = MtPengajuan::where('id_user', $user->id_user)
@@ -47,12 +48,12 @@ public function index(Request $request)
                 'jabatan'   => $user->jabatan->nama_jabatan ?? '-',
                 'divisi'    => $user->divisi->nama_divisi ?? '-',
                 'hadir'     => $presensi->count(),
-                'terlambat' => $presensi->where('status_presensi', 'Terlambat')->count(),
+                'terlambat' => $presensi->where('id_status_presensi', 2)->count(),   
                 'izin'      => $izin,
                 'cuti'      => $cuti,
                 'lembur'    => $lembur,
-                'wfo'       => $presensi->where('kategori_kerja', 'Work From Office (WFO)')->count(),
-                'wfa'       => $presensi->where('kategori_kerja', 'Work From Anyway (WFA)')->count(),
+                'wfo'       => $presensi->where('id_kategori_kerja', 1)->count(),
+                'wfa'       => $presensi->where('id_kategori_kerja', 2)->count(),
             ];
         });
 

@@ -16,11 +16,11 @@ class MtPresensi extends Model
         'tanggal', 
         'jam_masuk', 
         'jam_pulang', 
-        'status_presensi', 
+        'id_status_presensi', 
         'latitude', 
         'longitude', 
         'lokasi', 
-        'kategori_kerja'
+        'id_kategori_kerja'
     ];
 
     public function user()

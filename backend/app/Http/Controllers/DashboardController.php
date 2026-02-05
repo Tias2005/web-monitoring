@@ -21,7 +21,7 @@ class DashboardController extends Controller
         $hadir = MtPresensi::whereDate('tanggal', $hariIni)->count();
         
         $terlambat = MtPresensi::whereDate('tanggal', $hariIni)
-            ->where('status_presensi', 0) 
+            ->where('id_status_presensi', 2) 
             ->count();
 
         $tidakHadir = MtPengajuan::whereDate('tanggal_mulai', '<=', $hariIni)
@@ -65,7 +65,7 @@ class DashboardController extends Controller
 
         $terlambatList = MtPresensi::with(['user.jabatan'])
             ->whereDate('tanggal', $hariIni)
-            ->where('status_presensi', 0)
+            ->where('id_status_presensi', 2)
             ->get()
             ->map(function($p) {
                 return [
