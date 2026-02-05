@@ -27,6 +27,7 @@ export default function Sidebar() {
           <Link to="/karyawan" className={`sidebar-link ${location.pathname === '/karyawan' ? 'active' : ''}`}>Data Karyawan</Link>
           <Link to="/presensi" className={`sidebar-link ${location.pathname === '/presensi' ? 'active' : ''}`}>Presensi</Link>
           <Link to="/pengajuan" className={`sidebar-link ${location.pathname === '/pengajuan' ? 'active' : ''}`}>Pengajuan</Link>
+          <Link to="/penjadwalan" className={`sidebar-link ${location.pathname === '/penjadwalan' ? 'active' : ''}`}>Penjadwalan</Link>
           <Link to="/laporan" className={`sidebar-link ${location.pathname === '/laporan' ? 'active' : ''}`}>Laporan</Link>
         </nav>
       </div>

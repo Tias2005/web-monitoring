@@ -6,6 +6,7 @@ import Presensi from "./pages/Presensi";
 import Pengajuan from "./pages/Pengajuan";
 import Laporan from "./pages/Laporan";
 import Profil from "./pages/Profil";
+import Penjadwalan from "./pages/Penjadwalan";
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
         <Route path="/pengajuan" element={<Pengajuan />} />
         <Route path="/laporan" element={<Laporan />} />
         <Route path="/profil" element={<Profil />} />
-
+        <Route path="/penjadwalan" element={<Penjadwalan />} />
       </Routes>
     </BrowserRouter>
   );

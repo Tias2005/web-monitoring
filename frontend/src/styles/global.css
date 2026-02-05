@@ -1233,3 +1233,119 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .btn-simpan-profile:hover {
   background: #374151;
 }
+
+/* --- PENJADWALAN LAYOUT --- */
+.penjadwalan-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.schedule-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.schedule-card h3 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #1e293b; /* Biru gelap hampir hitam */
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 10px;
+}
+
+.jam-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 Kolom menyamping */
+  gap: 15px;
+}
+
+.btn-save-full {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-save-full:hover {
+  background: #1d4ed8;
+}
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mini-table th, .mini-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.holiday-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.holiday-date {
+  background: #ef4444;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  min-width: 60px;
+}
+
+.bg-success { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+.bg-danger { background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+
+.btn-save-mini {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Update warna teks di tabel */
+.mini-table th {
+  color: #475569;
+  font-weight: 600;
+}
+
+.mini-table td {
+  color: #0f172a; /* Hitam pekat */
+}
+
+.holiday-info strong {
+  color: #0f172a; /* Hitam pekat */
+}
+
+.holiday-info p {
+  color: #64748b; /* Abu-abu untuk keterangan */
+}
+
+/* Jika ada teks "Tidak ada libur terdekat" */
+.holiday-list p {
+  color: #000000;
+}
