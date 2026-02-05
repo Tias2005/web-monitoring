@@ -253,6 +253,74 @@ html, body {
   margin: 0;
 }
 
+.charts-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.main-chart { flex: 2; }
+.side-chart { flex: 1; }
+
+.chart-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 20px;
+}
+
+.highlight-row {
+    display: flex;
+    gap: 20px;
+}
+
+.list-box {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.highlight-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.user-info, .time-info, .status-badge {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info strong { font-size: 0.9rem; color: #1e293b; }
+.user-info span { font-size: 0.8rem; color: #64748b; }
+
+.time-info { text-align: right; }
+.time-info span { font-size: 0.75rem; }
+
+.status-badge { text-align: right; font-size: 0.8rem; }
+
+.empty-text {
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-top: 20px;
+}
+
 /* --- DATA KARYAWAN LAYOUT --- */
 .custom-table {
   width: 100%;
