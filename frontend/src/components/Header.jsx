@@ -22,11 +22,11 @@ export default function Header({ title }) {
       <h1>{title}</h1>
       {user && (
         <div className="header-profile" onClick={handleProfileClick}>
-          <FaUserCircle className="profile-icon" />
           <div className="profile-info">
             <span className="profile-name">{user.name_user}</span>
             <span className="profile-role">{user.role}</span>
           </div>
+          <FaUserCircle className="profile-icon" />
         </div>
       )}
     </header>

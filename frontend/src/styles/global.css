@@ -197,7 +197,13 @@ body {
   background: #fff;
   padding: 15px 25px;
   border-bottom: 1px solid #e2e8f0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 260px; 
+  z-index: 900;
 }
+
 
 .header-profile {
   display: flex;
@@ -214,7 +220,7 @@ body {
 }
 
 .profile-icon {
-  font-size: 1.8rem;
+  font-size: 2.5rem;
   color: #6366f1;
 }
 
@@ -222,6 +228,7 @@ body {
   display: flex;
   flex-direction: column;
   text-align: right;
+  align-items: flex-end;
 }
 
 .profile-name {
@@ -306,10 +313,13 @@ html, body {
 .dashboard-content {
     flex: 1;
     padding: 30px;
+    padding-top: 80px;
     background-color: #f1f5f9;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    margin-left: 260px;
+    box-sizing: border-box;
 }
 
 .dashboard-header h1 {
@@ -700,12 +710,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   background-color: #f1f5f9;
 }
 
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-}
+.main-content { flex: 1; display: flex; flex-direction: column; margin-left: 240px; /* beri jarak sesuai lebar sidebar */ }
 
 .presensi-container {
   padding: 0;
@@ -731,6 +736,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .stat-card {
   background: white;
   padding: 20px;
+  margin-top: 40px;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   border-left: 5px solid #6366f1; 
@@ -960,7 +966,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     align-items: center; 
     gap: 15px;
     margin-bottom: 25px;
-    margin-top: 10px;
+    margin-top: 40px;
 }
 
 .filter-select {
