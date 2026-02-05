@@ -761,3 +761,104 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     color: #64748b;
     margin-right: 10px;
 }
+
+/* --- LAPORAN LAYOUT --- */
+.btn-export-top {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: #10b981;
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-export-top:hover {
+    background-color: #059669;
+}
+
+.filter-laporan-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; 
+    gap: 15px;
+    margin-bottom: 25px;
+    margin-top: 10px;
+}
+
+.filter-select {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background-color: #475569;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+.table-wrapper {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.laporan-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.laporan-table thead {
+    background-color: #e2e8f0;
+}
+
+.laporan-table th {
+    padding: 15px;
+    text-align: center;
+    color: #1e293b;
+    font-weight: 800;
+    border-bottom: 1px solid #cbd5e1;
+}
+
+.laporan-table th, .laporan-table td {
+    padding: 15px;
+    text-align: center;
+}
+
+.laporan-table td {
+    padding: 15px;
+    text-align: center;
+    color: #475569;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.laporan-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.laporan-table td:first-child {
+    text-align: left;
+    padding-left: 25px;
+    font-weight: 600;
+}
+
+.btn-export {
+    background: none;
+    border: none;
+    color: #1e293b;
+    font-weight: 800;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.btn-export:hover {
+    color: #6366f1;
+    text-decoration: underline;
+}

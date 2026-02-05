@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Karyawan from "./pages/Karyawan";
 import Presensi from "./pages/Presensi";
 import Pengajuan from "./pages/Pengajuan";
+import Laporan from "./pages/Laporan";
 
 function App() {
   return (
@@ -14,6 +15,8 @@ function App() {
         <Route path="/karyawan" element={<Karyawan />} />
         <Route path="/presensi" element={<Presensi />} />
         <Route path="/pengajuan" element={<Pengajuan />} />
+        <Route path="/laporan" element={<Laporan />} />
+
       </Routes>
     </BrowserRouter>
   );
