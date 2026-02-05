@@ -132,6 +132,21 @@ body {
 }
 
 /* --- SIDEBAR LAYOUT --- */
+
+.sidebar-logo-container {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar-logo-img {
+  max-width: 100%;
+  height: auto;
+  max-height: 80px;
+  object-fit: contain;
+}
+
 .sidebar {
   width: 260px;
   height: 100vh;
