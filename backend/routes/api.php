@@ -9,6 +9,7 @@ use App\Http\Controllers\MtJabatanController;
 use App\Http\Controllers\MtDivisiController;
 use App\Http\Controllers\MtPresensiController;
 use App\Http\Controllers\MtPengajuanController;
+use App\Http\Controllers\LaporanController;
 
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -39,3 +40,6 @@ Route::prefix('pengajuan')->group(function () {
     Route::get('/{id}', [MtPengajuanController::class, 'show']);
     Route::get('/download/{id}', [MtPengajuanController::class, 'download']);
 });
+
+Route::get('/laporan', [LaporanController::class, 'index']);
+Route::get('/laporan/export', [LaporanController::class, 'exportExcel']);
