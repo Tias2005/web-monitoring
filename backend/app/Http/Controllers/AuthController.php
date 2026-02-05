@@ -45,4 +45,41 @@ class AuthController extends Controller
             ]
         ]);
     }
+
+    public function updateProfile(Request $request, $id)
+    {
+        $user = MtUser::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan'], 404);
+        }
+
+        $request->validate([
+            'nama_user'  => 'required|string|max:255',
+            'email_user' => 'required|email|unique:mt_user,email_user,' . $id . ',id_user',
+            'password_before' => 'nullable',
+            'new_password'    => 'nullable|confirmed',
+        ]);
+
+        $user->nama_user = $request->nama_user;
+        $user->email_user = $request->email_user;
+
+        if ($request->filled('new_password')) {
+            if (!Hash::check($request->password_before, $user->password_user)) {
+                return response()->json(['message' => 'Password lama tidak sesuai'], 422);
+            }
+            $user->password_user = Hash::make($request->new_password);
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profil berhasil diperbarui',
+            'data' => [
+                'id_user'   => $user->id_user,
+                'name_user' => $user->nama_user,
+                'email_user'=> $user->email_user,
+            ]
+        ]);
+    }
 }

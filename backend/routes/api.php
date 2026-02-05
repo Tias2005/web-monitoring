@@ -14,6 +14,7 @@ use App\Http\Controllers\LaporanController;
 
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::put('/user/update/{id}', [AuthController::class, 'updateProfile']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
