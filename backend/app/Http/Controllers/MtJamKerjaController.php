@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class MtJamKerjaController extends Controller {
     public function index() {
-        return response()->json(MtJamKerja::first()); // Mengambil 1 setting yang aktif
+        return response()->json(MtJamKerja::first()); 
     }
 
     public function update(Request $request, $id) {
