@@ -3,39 +3,55 @@ import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import Swal from "sweetalert2";
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 export default function Penjadwalan() {
   const [data, setData] = useState({ jam_kerja: [], hari_kerja: [], hari_libur: [] });
   const [formJam, setFormJam] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [selectedLibur, setSelectedLibur] = useState({ id_libur: null, tanggal_libur: '', nama_libur: '', kategori_libur: 'Custom' });
 
   useEffect(() => {
     fetchData();
   }, []);
 
-    const fetchData = async () => {
+  const fetchData = async () => {
     try {
-        const [resJam, resHari, resLibur] = await Promise.all([
+      const [resJam, resHari, resLibur] = await Promise.all([
         axios.get("http://localhost:8000/api/jam-kerja"),
         axios.get("http://localhost:8000/api/hari-kerja"),
         axios.get("http://localhost:8000/api/hari-libur")
-        ]);
+      ]);
 
-        setData({
-        jam_kerja: resJam.data ? [resJam.data] : [], 
+      setData({
+        jam_kerja: resJam.data ? [resJam.data] : [],
         hari_kerja: resHari.data,
         hari_libur: resLibur.data
-        });
+      });
 
-        if (resJam.data) {
+      if (resJam.data) {
         setFormJam(resJam.data);
-        }
+      }
     } catch (err) {
-        console.error("Gagal mengambil data", err);
+      console.error("Gagal mengambil data", err);
     }
-    };
+  };
 
   const handleInputChange = (e) => {
     setFormJam({ ...formJam, [e.target.name]: e.target.value });
+  };
+
+  const onDateClick = (date) => {
+    const localDate = date.toLocaleDateString('en-CA'); 
+    const existing = data.hari_libur.find(l => l.tanggal_libur === localDate);
+
+    if (existing) {
+      setSelectedLibur(existing);
+    } else {
+      setSelectedLibur({ id_libur: null, tanggal_libur: localDate, nama_libur: '', kategori_libur: 'Custom' });
+    }
+    setShowModal(true);
   };
 
   const saveJamKerja = async () => {
@@ -45,6 +61,56 @@ export default function Penjadwalan() {
       fetchData();
     } catch (err) {
       Swal.fire("Gagal!", "Terjadi kesalahan saat menyimpan data.", "error");
+    }
+  };
+
+  const saveLibur = async () => {
+    try {
+      if (selectedLibur.id_libur) {
+        await axios.delete(`http://localhost:8000/api/hari-libur/${selectedLibur.id_libur}`);
+        await axios.post("http://localhost:8000/api/hari-libur", selectedLibur);
+      } else {
+        await axios.post("http://localhost:8000/api/hari-libur", selectedLibur);
+      }
+      Swal.fire("Berhasil!", "Hari libur berhasil diperbarui", "success");
+      setShowModal(false);
+      fetchData();
+    } catch (err) {
+      Swal.fire("Gagal!", "Tanggal sudah terdaftar atau terjadi kesalahan server", "error");
+    }
+  };
+
+  const deleteLibur = async (id) => {
+    setShowModal(false);
+
+    const result = await Swal.fire({
+      title: 'Hapus Libur?',
+      text: "Hari ini akan kembali menjadi hari kerja normal.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Ya, Hapus!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:8000/api/hari-libur/${id}`);
+        Swal.fire("Terhapus!", "Hari libur telah dihapus.", "success");
+        setShowModal(false);
+        fetchData();
+      } catch (err) {
+        Swal.fire("Gagal!", "Gagal menghapus data.", "error");
+        setShowModal(true);
+      }
+    }
+  };
+
+  const tileClassName = ({ date, view }) => {
+    if (view === 'month') {
+      const dateStr = date.toLocaleDateString('en-CA');
+      if (data.hari_libur.find(l => l.tanggal_libur === dateStr)) {
+        return 'highlight-holiday';
+      }
     }
   };
 
@@ -93,7 +159,7 @@ export default function Penjadwalan() {
               </div>
 
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <button onClick={saveJamKerja} className="btn-save-full" style={{ width: '100%', marginTop: '10px' }}>
+                <button onClick={saveJamKerja} className="btn-save-full">
                   Simpan Perubahan Jam Kerja
                 </button>
               </div>
@@ -131,12 +197,40 @@ export default function Penjadwalan() {
                   ))}
                 </tbody>
               </table>
+
+              <div className="work-summary">
+                <p>
+                  <strong>Jumlah Hari Kerja:</strong> {data.hari_kerja.filter(h => h.is_hari_kerja).length} Hari/Minggu
+                </p>
+              </div>
             </div>
 
             <div className="schedule-card">
-              <h3>Hari Libur Mendatang</h3>
-              <div className="holiday-list">
-                {data.hari_libur.length > 0 ? data.hari_libur.map((libur) => (
+              <h3>Kalender & Hari Libur</h3>
+                <div className="calendar-container">
+                  <Calendar 
+                    onClickDay={onDateClick}
+                    tileClassName={tileClassName}
+                    locale="id-ID"
+                  />
+                  
+                  <div className="calendar-legend">
+                    <div className="legend-item">
+                      <div className="box" style={{ background: '#ef4444' }}></div>
+                      <span>Libur</span>
+                    </div>
+                    <div className="legend-item">
+                      <div className="box" style={{ background: '#fef08a', border: '1px solid #eab308' }}></div>
+                      <span>Hari Ini</span>
+                    </div>
+                    <div className="legend-item">
+                      <div className="box" style={{ background: '#2563eb' }}></div>
+                      <span>Dipilih</span>
+                    </div>
+                  </div>
+                </div>
+              <div className="holiday-list" style={{ marginTop: '20px' }}>
+                {data.hari_libur.slice(0, 3).map((libur) => (
                   <div key={libur.id_libur} className="holiday-item">
                     <div className="holiday-date">
                       {new Date(libur.tanggal_libur).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
@@ -146,12 +240,42 @@ export default function Penjadwalan() {
                       <p>{libur.kategori_libur}</p>
                     </div>
                   </div>
-                )) : <p>Tidak ada libur terdekat</p>}
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>{selectedLibur.id_libur ? "Edit" : "Tambah"} Hari Libur</h3>
+              <button className="close-btn" onClick={() => setShowModal(false)}>&times;</button>
+            </div>
+            <div className="modal-body">
+              <p>Tanggal: <strong>{new Date(selectedLibur.tanggal_libur).toLocaleDateString('id-ID', { dateStyle: 'long' })}</strong></p>
+              <div className="form-group">
+                <label>Nama Hari Libur</label>
+                <input 
+                  type="text" 
+                  className="modal-input"
+                  value={selectedLibur.nama_libur} 
+                  onChange={(e) => setSelectedLibur({...selectedLibur, nama_libur: e.target.value})}
+                  placeholder="e.g. Cuti Bersama"
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              {selectedLibur.id_libur && (
+                <button className="btn-delete" onClick={() => deleteLibur(selectedLibur.id_libur)}>Hapus</button>
+              )}
+              <button className="btn-save-mini" onClick={saveLibur}>Simpan</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
