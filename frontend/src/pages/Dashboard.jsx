@@ -50,7 +50,7 @@ export default function Dashboard() {
           </div>
           <div className="stat-card">
             <h3 style={{ color: '#f59e0b' }}>{data.stats.tidak_hadir}</h3>
-            <p>Izin/Cuti (Tidak Hadir)</p>
+            <p>Izin/Cuti/Lembur</p>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ export default function Dashboard() {
           </div>
 
           <div className="list-box">
-            <h4 className="chart-title">Pengajuan Izin/Cuti</h4>
+            <h4 className="chart-title">Pengajuan Izin/Cuti/Lembur</h4>
             {data.pengajuan_list.length > 0 ? (
               data.pengajuan_list.map((item, idx) => (
                 <div key={idx} className="highlight-item">

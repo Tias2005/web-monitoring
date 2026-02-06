@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { FaEdit, FaEye, FaEyeSlash } from "react-icons/fa";
+import Swal from "sweetalert2";
 import axios from "axios";
 
 export default function Profil() {
@@ -18,26 +19,52 @@ export default function Profil() {
     new_password_confirmation: ""
   });
 
-const handleUpdate = async (e) => {
+  const handleUpdate = async (e) => {
+    setShowModal(false);
+    
     e.preventDefault();
     try {
       const res = await axios.put(`http://localhost:8000/api/user/update/${user.id_user}`, formData);
       
       if (formData.new_password) {
-        alert("Password berhasil diubah. Silakan login kembali dengan password baru.");
+        await Swal.fire({
+          icon: "success",
+          title: "Password Diperbarui",
+          text: "Silakan login kembali dengan password baru Anda.",
+          confirmButtonColor: "#2563eb",
+        });
+
         localStorage.removeItem("user");
         localStorage.removeItem("token"); 
         navigate("/login");
         return;
       }
 
-      const updatedUser = { ...user, name_user: res.data.data.name_user, email_user: res.data.data.email_user };
+      const updatedUser = { 
+        ...user, 
+        name_user: res.data.data.name_user, 
+        email_user: res.data.data.email_user 
+      };
+      
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
       setShowModal(false);
-      alert("Profil berhasil diperbarui!");
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Profil Anda telah diperbarui.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
     } catch (err) {
-      alert(err.response?.data?.message || "Terjadi kesalahan");
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Memperbarui",
+        text: err.response?.data?.message || "Terjadi kesalahan pada server.",
+        confirmButtonColor: "#ef4444",
+      });
     }
   };
 

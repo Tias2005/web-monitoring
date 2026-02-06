@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/global.css"; 
+import Swal from "sweetalert2";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,7 +15,7 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); // Reset error setiap klik tombol
+    setError("");
     setLoading(true);
 
     try {
@@ -23,19 +24,24 @@ export default function Login() {
         password_user: password,
       });
 
-      // Jika res.data ada, berarti benar-benar sukses
       if (res.data) {
         localStorage.setItem("user", JSON.stringify(res.data.data));
-        alert("Login Berhasil!");
+        
+        await Swal.fire({
+          icon: "success",
+          title: "Login Berhasil!",
+          text: "Selamat datang kembali, Admin.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         navigate("/dashboard");
       }
       
     } catch (err) {
-      // Teks merah hanya akan muncul jika memang ada error dari server
       const msg = err.response?.data?.message || "Email atau password salah.";
       setError(msg);
     } finally {
-      // Pastikan loading berhenti, tapi jangan reset error di sini
       setLoading(false);
     }
   };
@@ -48,7 +54,6 @@ export default function Login() {
           <p className="login-subtitle">Silakan login ke akun Admin Anda</p>
         </div>
 
-        {/* Hanya muncul jika state error berisi teks */}
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleLogin} className="login-form">

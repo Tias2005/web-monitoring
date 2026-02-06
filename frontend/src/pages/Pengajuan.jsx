@@ -17,9 +17,24 @@ const Pengajuan = () => {
     try {
       const response = await axios.get('http://localhost:8000/api/pengajuan');
       if (response.data.success) {
-        setListPengajuan(response.data.data);
+        const allData = response.data.data;
         
-        const rekap = response.data.data.reduce((acc, curr) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const filteredToday = allData.filter(item => {
+          const startDate = new Date(item.tanggal_mulai);
+          const endDate = new Date(item.tanggal_selesai);
+          
+          startDate.setHours(0, 0, 0, 0);
+          endDate.setHours(0, 0, 0, 0);
+
+          return today >= startDate && today <= endDate;
+        });
+
+        setListPengajuan(filteredToday);
+        
+        const rekap = filteredToday.reduce((acc, curr) => {
           const kategori = curr.kategori.nama_pengajuan.toLowerCase();
           if (kategori === 'izin') acc.total_izin++;
           if (kategori === 'cuti') acc.total_cuti++;
@@ -48,15 +63,15 @@ const Pengajuan = () => {
           <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginTop: '20px' }}>
             <div className="stat-card">
               <h3>{stats.total_izin}</h3>
-              <p>Total Izin</p>
+              <p>Izin Hari Ini</p>
             </div>
             <div className="stat-card">
               <h3>{stats.total_cuti}</h3>
-              <p>Total Cuti</p>
+              <p>Cuti Hari Ini</p>
             </div>
             <div className="stat-card">
               <h3>{stats.total_lembur}</h3>
-              <p>Total Lembur</p>
+              <p>Lembur Hari Ini</p>
             </div>
           </div>
 
@@ -78,12 +93,17 @@ const Pengajuan = () => {
                       <span className="time-status text-blue">
                         {item.kategori?.nama_pengajuan.toUpperCase()}
                       </span>
-                      <span className="work-cat">{item.tanggal_mulai.split(' ')[0]}</span>
+                      <span className="work-cat">
+                        {new Date(item.tanggal_mulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {new Date(item.tanggal_selesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                      </span>
                     </div>
                   </div>
                 ))
               ) : (
-                <p style={{ textAlign: 'center', color: '#64748b', marginTop: '20px' }}>Tidak ada data pengajuan.</p>
+                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                   <span style={{ fontSize: '3rem', display: 'block' }}>📅</span>
+                   <p style={{ color: '#64748b', marginTop: '10px' }}>Tidak ada izin/cuti/lembur untuk hari ini.</p>
+                </div>
               )}
             </div>
 

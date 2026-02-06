@@ -50,26 +50,33 @@ const Presensi = () => {
         <div className="main-content-presensi">
           <div className="presensi-list">
             <h4 className="section-title">Presensi Hari Ini</h4>
-            {dataPresensi.map((item) => (
-              <div 
-                key={item.id_presensi} 
-                className={`list-item ${selectedDetail?.id_presensi === item.id_presensi ? 'active' : ''}`}
-                onClick={() => setSelectedDetail(item)}
-              >
-                <div className="info">
-                  <strong>{item.user?.nama_user}</strong>
-                  <span>{item.user?.jabatan?.nama_jabatan}</span>
-                </div>
-                <div className="status-info">
-                  <span className={`time-status ${item.id_status_presensi === 1 ? 'text-green' : 'text-red'}`}>
-                      {item.status_presensi?.nama_status_presensi || (item.id_status_presensi === 1 ? 'Tepat Waktu' : 'Terlambat')}
+            {dataPresensi.length > 0 ? (
+              dataPresensi.map((item) => (
+                <div 
+                  key={item.id_presensi} 
+                  className={`list-item ${selectedDetail?.id_presensi === item.id_presensi ? 'active' : ''}`}
+                  onClick={() => setSelectedDetail(item)}
+                >
+                  <div className="info">
+                    <strong>{item.user?.nama_user}</strong>
+                    <span>{item.user?.jabatan?.nama_jabatan}</span>
+                  </div>
+                  <div className="status-info">
+                    <span className={`time-status ${item.id_status_presensi === 1 ? 'text-green' : 'text-red'}`}>
+                        {item.status_presensi?.nama_status_presensi || (item.id_status_presensi === 1 ? 'Tepat Waktu' : 'Terlambat')}
+                      </span>
+                    <span className="work-cat">
+                      {item.kategori_kerja?.nama_kategori_kerja || (item.id_kategori_kerja === 1 ? 'WFO' : 'WFA')}
                     </span>
-                  <span className="work-cat">
-                    {item.kategori_kerja?.nama_kategori_kerja || (item.id_kategori_kerja === 1 ? 'WFO' : 'WFA')}
-                  </span>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                <span style={{ fontSize: '3rem', display: 'block' }}>📍</span>
+                <p style={{ color: '#64748b', marginTop: '10px' }}>Tidak ada presensi untuk hari ini.</p>
               </div>
-            ))}
+            )}
           </div>
 
           <div className="detail-panel">
