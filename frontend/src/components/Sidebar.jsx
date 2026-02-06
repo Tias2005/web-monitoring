@@ -13,7 +13,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
-        <div className="sidebar-logo-container" style={{ textAlign: 'center', padding: '20px 0' }}>
+        <div className="sidebar-logo-container" style={{ textAlign: 'center', padding: '0' }}>
           <img 
             src="/logo/logo_aplikasi_presensi.png" 
             alt="Logo Aplikasi" 

@@ -69,7 +69,7 @@ export default function Profil() {
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-layout">
       <Sidebar />
       <div className="dashboard-content">
         <Header title="Profil" />

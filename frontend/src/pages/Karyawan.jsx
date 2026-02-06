@@ -71,6 +71,7 @@ export default function Karyawan() {
 
   const handleEdit = (item) => {
     setIsEdit(true);
+    setIsDetail(false);
     setSelectedId(item.id_user);
 
     const formattedDate = item.tanggal_bergabung 
@@ -87,21 +88,22 @@ export default function Karyawan() {
       tanggal_bergabung: formattedDate,
       status_user: String(item.status_user),
       password_user: "", 
+      foto_profil: item.foto_profil
     });
     setShowModal(true);
   };
 
   const handleView = (item) => {
-  setIsDetail(true);
-  setIsEdit(false);
-  setFormData({
-    ...item,
-    no_telepon: String(item.no_telepon || ""),
-    tanggal_bergabung: item.tanggal_bergabung ? item.tanggal_bergabung.substring(0, 10) : "",
-    status_user: String(item.status_user),
-  });
-  setShowModal(true);
-};
+    setIsDetail(true);
+    setIsEdit(false);
+    setFormData({
+      ...item,
+      no_telepon: String(item.no_telepon || ""),
+      tanggal_bergabung: item.tanggal_bergabung ? item.tanggal_bergabung.substring(0, 10) : "",
+      status_user: String(item.status_user),
+    });
+    setShowModal(true);
+  };
 
   const deleteKaryawan = async (id) => {
     Swal.fire({
@@ -144,11 +146,11 @@ export default function Karyawan() {
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginBottom: '20px' }}>
           <button onClick={() => window.open("http://localhost:8000/api/karyawan/export", "_blank")} className="btn-export-top">
-             EXPORT DATA
+              EXPORT DATA
           </button>
           <button onClick={() => { setIsEdit(false); setIsDetail(false); setFormData(initialFormState); setShowModal(true); }} className="btn-add">
-             Tambah Karyawan
-          </button>         
+              Tambah Karyawan
+          </button>          
         </div>
 
         <table className="custom-table">
@@ -209,22 +211,24 @@ export default function Karyawan() {
                 <div className="form-grid">
                 <div className="form-group">
                     <label>Nama Lengkap</label>
-                    <input name="nama_user" value={formData.nama_user} readOnly={isDetail} onChange={handleInputChange} />
+                    <input name="nama_user" value={formData.nama_user} readOnly={isDetail} onChange={handleInputChange} required />
                 </div>
                 <div className="form-group">
                     <label>Email</label>
-                    <input name="email_user" type="email" value={formData.email_user} readOnly={isDetail} onChange={handleInputChange} />
+                    <input name="email_user" type="email" value={formData.email_user} readOnly={isDetail} onChange={handleInputChange} required />
                 </div>
 
                 <div className="form-group">
                     <label>Jabatan</label>
-                    <select name="id_jabatan" value={formData.id_jabatan} disabled={isDetail} onChange={handleInputChange}>
+                    <select name="id_jabatan" value={formData.id_jabatan} disabled={isDetail} onChange={handleInputChange} required>
+                    <option value="">Pilih Jabatan</option>
                     {jabatan.map(j => <option key={j.id_jabatan} value={j.id_jabatan}>{j.nama_jabatan}</option>)}
                     </select>
                 </div>
                 <div className="form-group">
                     <label>Divisi</label>
-                    <select name="id_divisi" value={formData.id_divisi} disabled={isDetail} onChange={handleInputChange}>
+                    <select name="id_divisi" value={formData.id_divisi} disabled={isDetail} onChange={handleInputChange} required>
+                    <option value="">Pilih Divisi</option>
                     {divisi.map(d => <option key={d.id_divisi} value={d.id_divisi}>{d.nama_divisi}</option>)}
                     </select>
                 </div>
