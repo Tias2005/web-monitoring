@@ -16,10 +16,13 @@ use App\Http\Controllers\MtHariKerjaController;
 use App\Http\Controllers\MtHariLiburController;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login-mobile', [AuthController::class, 'loginMobile']);
 Route::put('/user/update/{id}', [AuthController::class, 'updateProfile']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/user/register-face', [AuthController::class, 'registerFace']);
+    
+    Route::put('/user/update/{id}', [AuthController::class, 'updateProfile']);
 });
 
 Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);

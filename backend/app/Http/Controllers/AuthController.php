@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use App\Models\MtUser;
 
 class AuthController extends Controller
@@ -46,6 +47,59 @@ class AuthController extends Controller
         ]);
     }
 
+    public function loginMobile(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required'
+        ]);
+
+        $user = MtUser::with(['jabatan', 'divisi'])
+            ->where('email_user', $request->email)
+            ->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Email tidak terdaftar'], 401);
+        }
+
+        if ($user->id_role != 2) {
+            return response()->json(['message' => 'Akses ditolak. Khusus aplikasi Karyawan.'], 403);
+        }
+
+        if (is_null($user->password_user)) {
+            $user->password_user = Hash::make($request->password);
+            $user->save();
+            $message = 'Password berhasil dibuat dan login berhasil!';
+        } else {
+            if (!Hash::check($request->password, $user->password_user)) {
+                return response()->json(['message' => 'Password salah'], 401);
+            }
+            $message = 'Login berhasil';
+        }
+
+        $token = $user->createToken('mobile_token')->plainTextToken;
+        $statusTeks = ($user->status_user == 1) ? "Aktif" : "Tidak Aktif";
+        $tglJoin = $user->tanggal_bergabung ? \Carbon\Carbon::parse($user->tanggal_bergabung)->format('Y-m-d') : '-';
+
+        return response()->json([
+            'message' => $message,
+            'token'   => $token, 
+            'user' => [
+                'id_user'          => (string) $user->id_user,
+                'nama_user'        => $user->nama_user,
+                'email_user'       => $user->email_user,
+                'foto_profil'      => $user->foto_profil,
+                'embedding_vector' => $user->embedding_vector,
+                'jabatan'          => $user->jabatan->nama_jabatan ?? '-',
+                'divisi'           => $user->divisi->nama_divisi ?? '-',
+                'tanggal_bergabung'=> $tglJoin,            
+                'no_telepon'       => (string) $user->no_telepon,
+                'alamat'           => $user->alamat,
+                'status_user'      => $statusTeks,
+            ]
+        ]);
+    }
+
     public function updateProfile(Request $request, $id)
     {
         $user = MtUser::find($id);
@@ -81,5 +135,42 @@ class AuthController extends Controller
                 'email_user'=> $user->email_user,
             ]
         ]);
+    }
+
+    public function registerFace(Request $request)
+    {
+        $request->validate([
+            'id_user'   => 'required', 
+            'embedding' => 'required|string',
+            'foto'      => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        try {
+            $user = MtUser::find($request->id_user);
+
+            if (!$user) {
+                return response()->json(['message' => 'User tidak ditemukan'], 404);
+            }
+
+            if ($request->hasFile('foto')) {
+                if ($user->foto_profil) {
+                    Storage::disk('public')->delete($user->foto_profil);
+                }
+                $path = $request->file('foto')->store('profile_faces', 'public');
+                $user->foto_profil = $path;
+            }
+
+            $user->embedding_vector = DB::raw("'" . $request->embedding . "'::double precision[]");        
+            $user->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Wajah berhasil didaftarkan.',
+                'user' => $user
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 }

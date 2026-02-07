@@ -31,7 +31,7 @@ class KaryawanController extends Controller
 
         $validated['id_role'] = 2; 
         $validated['status_karyawan'] = 1; 
-        $validated['password_user'] = Hash::make($request->password_user);
+        $validated['password_user'] = null;
 
         $user = MtUser::create($validated);
 
