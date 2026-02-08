@@ -104,4 +104,48 @@ class DashboardController extends Controller
             'pengajuan_list' => $pengajuanList
         ]);
     }
+
+    public function getUserStats($id_user)
+    {
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $hadir = MtPresensi::where('id_user', $id_user)
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->count();
+
+        $terlambat = MtPresensi::where('id_user', $id_user)
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->where('id_status_presensi', 2)
+            ->count();
+
+        $izinCuti = MtPengajuan::where('id_user', $id_user)
+            ->where(function($query) use ($startOfMonth, $endOfMonth) {
+                $query->whereBetween('tanggal_mulai', [$startOfMonth, $endOfMonth])
+                    ->orWhereBetween('tanggal_selesai', [$startOfMonth, $endOfMonth]);
+            })
+            ->whereHas('kategori', function($q) {
+                $q->where('nama_pengajuan', 'LIKE', '%Izin%')
+                ->orWhere('nama_pengajuan', 'LIKE', '%Cuti%');
+            })
+            ->count();
+
+        $totalLemburMenit = MtPengajuan::where('id_user', $id_user)
+            ->whereBetween('tanggal_mulai', [$startOfMonth, $endOfMonth])
+            ->whereHas('kategori', function($q) {
+                $q->where('nama_pengajuan', 'LIKE', '%Lembur%');
+            })
+            ->sum('durasi');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'hadir' => $hadir . ' hari',
+                'terlambat' => $terlambat . ' kali',
+                'izin_cuti' => $izinCuti . ' hari',
+                'lembur' => round($totalLemburMenit / 60) . ' jam',
+            ]
+        ]);
+    }
+
 }

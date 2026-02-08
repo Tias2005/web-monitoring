@@ -14,6 +14,7 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MtJamKerjaController;
 use App\Http\Controllers\MtHariKerjaController;
 use App\Http\Controllers\MtHariLiburController;
+use App\Http\Controllers\MtNotifikasiController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/login-mobile', [AuthController::class, 'loginMobile']);
@@ -26,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);
+Route::get('/user-stats/{id_user}', [DashboardController::class, 'getUserStats']);
 
 Route::get('/roles', [MtRoleController::class, 'index']);
 Route::post('/roles', [MtRoleController::class, 'store']);
@@ -43,11 +45,14 @@ Route::get('/jabatan', [MtJabatanController::class, 'getJabatan']);
 Route::get('/divisi', [MtDivisiController::class, 'getDivisi']);
 
 Route::get('/presensi', [MtPresensiController::class, 'index']);
+Route::get('/presensi/today/{id_user}', [MtPresensiController::class, 'getTodayStatus']);
+Route::get('/presensi/calendar/{id_user}', [MtPresensiController::class, 'getCalendarEvents']);
 
 Route::prefix('pengajuan')->group(function () {
     Route::get('/', [MtPengajuanController::class, 'index']);
     Route::get('/{id}', [MtPengajuanController::class, 'show']);
     Route::get('/download/{id}', [MtPengajuanController::class, 'download']);
+    Route::post('/store', [MtPengajuanController::class, 'store']);
 });
 
 Route::get('/laporan', [LaporanController::class, 'index']);
@@ -62,3 +67,6 @@ Route::put('/hari-kerja/{id}', [MtHariKerjaController::class, 'update']);
 Route::get('/hari-libur', [MtHariLiburController::class, 'index']);
 Route::post('/hari-libur', [MtHariLiburController::class, 'store']);
 Route::delete('/hari-libur/{id}', [MtHariLiburController::class, 'destroy']);
+
+Route::get('/notifications/{id_user}', [MtNotifikasiController::class, 'getByUser']);
+Route::put('/notifications/read/{id}', [MtNotifikasiController::class, 'markAsRead']);

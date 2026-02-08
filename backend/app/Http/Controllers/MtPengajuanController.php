@@ -50,4 +50,35 @@ class MtPengajuanController extends Controller
 
         return Storage::download($path, $pengajuan->lampiran);
     }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'id_user' => 'required',
+            'id_kategori_pengajuan' => 'required',
+            'tanggal_mulai' => 'required|date', 
+            'alasan' => 'required',
+            'lampiran' => 'nullable|file|mimes:pdf,jpeg,png,jpg,doc,docx|max:2048'
+        ]);
+
+        $fileName = null;
+        if ($request->hasFile('lampiran')) {
+            $file = $request->file('lampiran');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('pengajuan', $fileName, 'public');
+        }
+
+        $pengajuan = MtPengajuan::create([
+            'id_user' => $request->id_user,
+            'id_kategori_pengajuan' => $request->id_kategori_pengajuan,
+            'tanggal_mulai' => $request->tanggal_mulai,
+            'tanggal_selesai' => $request->tanggal_selesai ?? $request->tanggal_mulai, 
+            'jam_mulai' => $request->jam_mulai,
+            'jam_selesai' => $request->jam_selesai,
+            'alasan' => $request->alasan,
+            'lampiran' => $fileName,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Pengajuan berhasil dikirim']);
+    }
 }
