@@ -119,23 +119,27 @@ class DashboardController extends Controller
             ->where('id_status_presensi', 2)
             ->count();
 
-        $pengajuanIzinCuti = MtPengajuan::where('id_user', $id_user)
-            ->whereHas('kategori', function($q) {
-                $q->where('nama_pengajuan', 'LIKE', '%Izin%')
-                ->orWhere('nama_pengajuan', 'LIKE', '%Cuti%');
-            })
-            ->where(function($query) use ($startOfMonth, $endOfMonth) {
-                $query->whereBetween('tanggal_mulai', [$startOfMonth, $endOfMonth])
-                    ->orWhereBetween('tanggal_selesai', [$startOfMonth, $endOfMonth]);
-            })
-            ->get();
+        $hitungHari = function($kategori) use ($id_user, $startOfMonth, $endOfMonth) {
+            $pengajuans = MtPengajuan::where('id_user', $id_user)
+                ->whereHas('kategori', function($q) use ($kategori) {
+                    $q->where('nama_pengajuan', 'LIKE', '%' . $kategori . '%');
+                })
+                ->where(function($query) use ($startOfMonth, $endOfMonth) {
+                    $query->whereBetween('tanggal_mulai', [$startOfMonth, $endOfMonth])
+                        ->orWhereBetween('tanggal_selesai', [$startOfMonth, $endOfMonth]);
+                })->get();
 
-        $totalHariIzinCuti = 0;
-        foreach ($pengajuanIzinCuti as $p) {
-            $mulai = Carbon::parse($p->tanggal_mulai);
-            $selesai = Carbon::parse($p->tanggal_selesai);
-            $totalHariIzinCuti += $mulai->diffInDays($selesai) + 1;
-        }
+            $total = 0;
+            foreach ($pengajuans as $p) {
+                $mulai = Carbon::parse($p->tanggal_mulai);
+                $selesai = Carbon::parse($p->tanggal_selesai);
+                $total += $mulai->diffInDays($selesai) + 1;
+            }
+            return $total;
+        };
+
+        $totalIzin = $hitungHari('Izin');
+        $totalCuti = $hitungHari('Cuti');
 
         $pengajuanLembur = MtPengajuan::where('id_user', $id_user)
             ->whereBetween('tanggal_mulai', [$startOfMonth, $endOfMonth])
@@ -147,9 +151,7 @@ class DashboardController extends Controller
         $totalMenitLembur = 0;
         foreach ($pengajuanLembur as $l) {
             if ($l->jam_mulai && $l->jam_selesai) {
-                $jamMulai = Carbon::parse($l->jam_mulai);
-                $jamSelesai = Carbon::parse($l->jam_selesai);
-                $totalMenitLembur += $jamMulai->diffInMinutes($jamSelesai);
+                $totalMenitLembur += Carbon::parse($l->jam_mulai)->diffInMinutes(Carbon::parse($l->jam_selesai));
             }
         }
 
@@ -158,7 +160,8 @@ class DashboardController extends Controller
             'data' => [
                 'hadir' => $hadir . ' hari',
                 'terlambat' => $terlambat . ' kali',
-                'izin_cuti' => $totalHariIzinCuti . ' hari',
+                'izin' => $totalIzin . ' hari',
+                'cuti' => $totalCuti . ' hari',
                 'lembur' => round($totalMenitLembur / 60) . ' jam',
             ]
         ]);

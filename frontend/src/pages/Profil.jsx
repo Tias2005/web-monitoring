@@ -23,8 +23,15 @@ export default function Profil() {
     setShowModal(false);
     
     e.preventDefault();
+    const token = localStorage.getItem("token");
+    
     try {
-      const res = await axios.put(`http://localhost:8000/api/user/update/${user.id_user}`, formData);
+      const res = await axios.post(`http://localhost:8000/api/user/update/${user.id_user}`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          Accept: "application/json",
+        }
+      });
       
       if (formData.new_password) {
         await Swal.fire({
@@ -42,8 +49,8 @@ export default function Profil() {
 
       const updatedUser = { 
         ...user, 
-        name_user: res.data.data.name_user, 
-        email_user: res.data.data.email_user 
+        name_user: res.data.user.nama_user, 
+        email_user: res.data.user.email_user 
       };
       
       localStorage.setItem("user", JSON.stringify(updatedUser));

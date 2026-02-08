@@ -36,13 +36,18 @@ class AuthController extends Controller
             return response()->json(['message' => 'Password salah'], 401);
         }
 
+        $admin = MtUser::find($user->id_user);
+
+        $token = $admin->createToken('admin_token')->plainTextToken;
+
         return response()->json([
             'message' => 'Login berhasil',
-            'data' => [
-                'id_user'   => $user->id_user,
-                'name_user' => $user->nama_user,
-                'email_user'=> $user->email_user,
-                'role'      => $user->nama_role, 
+            'token'   => $token,
+            'user' => [
+                'id_user'   => $admin->id_user,
+                'name_user' => $admin->nama_user,
+                'email_user'=> $admin->email_user,
+                'role'      => $user->nama_role,
             ]
         ]);
     }
@@ -111,29 +116,53 @@ class AuthController extends Controller
         $request->validate([
             'nama_user'  => 'required|string|max:255',
             'email_user' => 'required|email|unique:mt_user,email_user,' . $id . ',id_user',
+            'no_telepon' => 'nullable|string',
+            'alamat'     => 'nullable|string',
             'password_before' => 'nullable',
-            'new_password'    => 'nullable|confirmed',
+            'new_password'    => 'nullable|min:6',
         ]);
 
+        $passwordChanged = false;
         $user->nama_user = $request->nama_user;
         $user->email_user = $request->email_user;
+        $user->no_telepon = $request->no_telepon;
+        $user->alamat = $request->alamat;
 
         if ($request->filled('new_password')) {
             if (!Hash::check($request->password_before, $user->password_user)) {
                 return response()->json(['message' => 'Password lama tidak sesuai'], 422);
             }
             $user->password_user = Hash::make($request->new_password);
+            $passwordChanged = true;
         }
 
         $user->save();
 
+        $user->load(['jabatan', 'divisi']);
+
+        $statusTeks = ($user->status_user == 1) ? "Aktif" : "Tidak Aktif";
+        $tglJoin = $user->tanggal_bergabung ? \Carbon\Carbon::parse($user->tanggal_bergabung)->format('Y-m-d') : '-';
+
+
+        $userData = [
+            'id_user'           => (string) $user->id_user,
+            'nama_user'         => $user->nama_user,
+            'email_user'        => $user->email_user,
+            'foto_profil'       => $user->foto_profil,
+            'jabatan'           => $user->jabatan->nama_jabatan ?? '-',
+            'divisi'            => $user->divisi->nama_divisi ?? '-',
+            'tanggal_bergabung' => $tglJoin,
+            'no_telepon'        => (string) $user->no_telepon,
+            'alamat'            => $user->alamat,
+            'status_user'       => $statusTeks,
+        ];
+
         return response()->json([
-            'message' => 'Profil berhasil diperbarui',
-            'data' => [
-                'id_user'   => $user->id_user,
-                'name_user' => $user->nama_user,
-                'email_user'=> $user->email_user,
-            ]
+            'message' => $passwordChanged 
+                ? 'Password berhasil diubah. Silakan login ulang.' 
+                : 'Profil berhasil diperbarui',
+            'password_changed' => $passwordChanged,
+            'user' => $userData
         ]);
     }
 

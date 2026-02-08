@@ -24,19 +24,20 @@ export default function Login() {
         password_user: password,
       });
 
-      if (res.data) {
-        localStorage.setItem("user", JSON.stringify(res.data.data));
-        
-        await Swal.fire({
-          icon: "success",
-          title: "Login Berhasil!",
-          text: "Selamat datang kembali, Admin.",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+    if (res.data) {
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-        navigate("/dashboard");
-      }
+      await Swal.fire({
+        icon: "success",
+        title: "Login Berhasil!",
+        text: "Selamat datang kembali, Admin.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      navigate("/dashboard");
+    }
       
     } catch (err) {
       const msg = err.response?.data?.message || "Email atau password salah.";
