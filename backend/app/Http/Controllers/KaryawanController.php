@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\MtUser;
+use App\Models\MtJatahCuti;
+use App\Models\MtJatahCutiKaryawan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KaryawanExport;
+use Illuminate\Support\Facades\DB;
 
 class KaryawanController extends Controller
 {
@@ -26,19 +29,43 @@ class KaryawanController extends Controller
             'no_telepon'        => 'nullable|string',
             'alamat'            => 'nullable|string',
             'tanggal_bergabung' => 'required|date',
-            'status_user' => 'required|integer',
+            'status_user'       => 'required|integer',
         ]);
 
         $validated['id_role'] = 2; 
         $validated['status_karyawan'] = 1; 
         $validated['password_user'] = null;
 
-        $user = MtUser::create($validated);
+        DB::beginTransaction();
 
-        return response()->json([
-            'message' => 'Karyawan berhasil ditambahkan!',
-            'data' => $user
-        ], 201);
+        try {
+            $user = MtUser::create($validated);
+            $tahunSekarang = date('Y');
+            $globalSetting = MtJatahCuti::where('tahun_berlaku', $tahunSekarang)->first();            
+            $jatahDefault = $globalSetting ? $globalSetting->jatah_tahunan_global : 12;
+
+            MtJatahCutiKaryawan::create([
+                'id_user'     => $user->id_user,
+                'tahun'       => $tahunSekarang,
+                'total_jatah' => $jatahDefault,
+                'terpakai'    => 0,
+                'sisa'        => $jatahDefault
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Karyawan dan jatah cuti berhasil ditambahkan!',
+                'data' => $user
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Gagal menambahkan karyawan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show($id) {

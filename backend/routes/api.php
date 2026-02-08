@@ -15,6 +15,7 @@ use App\Http\Controllers\MtJamKerjaController;
 use App\Http\Controllers\MtHariKerjaController;
 use App\Http\Controllers\MtHariLiburController;
 use App\Http\Controllers\MtNotifikasiController;
+use App\Http\Controllers\MtJatahCutiController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/login-mobile', [AuthController::class, 'loginMobile']);
@@ -70,3 +71,9 @@ Route::delete('/hari-libur/{id}', [MtHariLiburController::class, 'destroy']);
 
 Route::get('/notifications/{id_user}', [MtNotifikasiController::class, 'getByUser']);
 Route::put('/notifications/read/{id}', [MtNotifikasiController::class, 'markAsRead']);
+
+Route::prefix('jatah-cuti')->group(function () {
+    Route::get('/global', [MtJatahCutiController::class, 'getGlobalSetting']);
+    Route::post('/global/update', [MtJatahCutiController::class, 'updateGlobal']);
+    Route::get('/karyawan/{id_user}', [MtJatahCutiController::class, 'getSisaCutiKaryawan']);
+});
