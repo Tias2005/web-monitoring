@@ -72,13 +72,13 @@ const Laporan = () => {
               <thead>
                 <tr>
                   <th>NAMA</th>
-                  <th>HADIR</th>
-                  <th>TERLAMBAT</th>
-                  <th>IZIN</th>
-                  <th>CUTI</th>
-                  <th>LEMBUR</th>
-                  <th>WFO</th>
-                  <th>WFA</th>
+                  <th>HADIR/Hari</th>
+                  <th>TERLAMBAT/Hari</th>
+                  <th>IZIN/Hari</th>
+                  <th>CUTI/Hari</th>
+                  <th>LEMBUR/Jam</th>
+                  <th>WFO/Hari</th>
+                  <th>WFA/Hari</th>
                 </tr>
               </thead>
               <tbody>

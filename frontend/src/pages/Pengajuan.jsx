@@ -115,8 +115,18 @@ const Pengajuan = () => {
                   <div className="detail-row"><span>Divisi</span><strong>{selectedPengajuan.user?.divisi?.nama_divisi || 'Teknis'}</strong></div>
                   <div className="detail-row"><span>Jabatan</span><strong>{selectedPengajuan.user?.jabatan?.nama_jabatan || 'Developer'}</strong></div>
                   <div className="detail-row"><span>Tipe</span><strong>{selectedPengajuan.kategori?.nama_pengajuan}</strong></div>
-                  <div className="detail-row"><span>Tanggal Mulai</span><strong>{selectedPengajuan.tanggal_mulai.split(' ')[0]}</strong></div>
-                  <div className="detail-row"><span>Tanggal Selesai</span><strong>{selectedPengajuan.tanggal_selesai.split(' ')[0]}</strong></div>
+                  {selectedPengajuan.kategori?.nama_pengajuan.toLowerCase().includes('lembur') ? (
+                    <>
+                      <div className="detail-row"><span>Tanggal Lembur</span><strong>{selectedPengajuan.tanggal_mulai.split(' ')[0]}</strong></div>
+                      <div className="detail-row"><span>Jam Mulai</span><strong className="text-blue">{selectedPengajuan.jam_mulai || '--:--'}</strong></div>
+                      <div className="detail-row"><span>Jam Selesai</span><strong className="text-blue">{selectedPengajuan.jam_selesai || '--:--'}</strong></div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="detail-row"><span>Tanggal Mulai</span><strong>{selectedPengajuan.tanggal_mulai.split(' ')[0]}</strong></div>
+                      <div className="detail-row"><span>Tanggal Selesai</span><strong>{selectedPengajuan.tanggal_selesai.split(' ')[0]}</strong></div>
+                    </>
+                  )}
                   <div className="detail-row"><span>Alasan</span><strong>{selectedPengajuan.alasan}</strong></div>
                   
                   <div style={{ marginTop: '25px' }}>

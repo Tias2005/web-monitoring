@@ -8,6 +8,7 @@ use App\Models\MtPengajuan;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Carbon\Carbon;
 
 class LaporanExport implements FromCollection, WithHeadings, WithMapping
 {
@@ -32,30 +33,49 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
                 ->get();
 
             $pengajuan = MtPengajuan::where('id_user', $user->id_user)
-                ->whereMonth('tanggal_mulai', $this->bulan)
-                ->whereYear('tanggal_mulai', $this->tahun)
+                ->where(function($q) {
+                    $q->whereMonth('tanggal_mulai', $this->bulan)->whereYear('tanggal_mulai', $this->tahun)
+                      ->orWhereMonth('tanggal_selesai', $this->bulan)->whereYear('tanggal_selesai', $this->tahun);
+                })
                 ->with('kategori')
                 ->get();
 
-            $izin = 0; $cuti = 0; $lembur = 0;
+            $totalIzin = 0; 
+            $totalCuti = 0; 
+            $totalLemburMenit = 0;
+
             foreach ($pengajuan as $p) {
                 $nama_kat = strtolower($p->kategori->nama_pengajuan ?? '');
-                if (str_contains($nama_kat, 'izin')) $izin++;
-                elseif (str_contains($nama_kat, 'cuti')) $cuti++;
-                elseif (str_contains($nama_kat, 'lembur')) $lembur++;
+                
+                $mulai = Carbon::parse($p->tanggal_mulai);
+                $selesai = Carbon::parse($p->tanggal_selesai);
+                
+                $durasiHari = $mulai->diffInDays($selesai) + 1;
+
+                if (str_contains($nama_kat, 'izin')) {
+                    $totalIzin += $durasiHari;
+                } elseif (str_contains($nama_kat, 'cuti')) {
+                    $totalCuti += $durasiHari;
+                } elseif (str_contains($nama_kat, 'lembur')) {
+                    if ($p->jam_mulai && $p->jam_selesai) {
+                        $jamMulai = Carbon::parse($p->jam_mulai);
+                        $jamSelesai = Carbon::parse($p->jam_selesai);
+                        $totalLemburMenit += $jamMulai->diffInMinutes($jamSelesai);
+                    }
+                }
             }
 
             return [
-                'nama' => $user->nama_user,
-                'jabatan' => $user->jabatan->nama_jabatan ?? '-',
-                'divisi' => $user->divisi->nama_divisi ?? '-',
-                'hadir' => $presensi->count(),
-                'terlambat' => $presensi->where('status_presensi', 'Terlambat')->count(),
-                'izin' => $izin,
-                'cuti' => $cuti,
-                'lembur' => $lembur,
-                'wfo' => $presensi->where('kategori_kerja', 'Work From Office (WFO)')->count(),
-                'wfa' => $presensi->where('kategori_kerja', 'Work From Anyway (WFA)')->count(),
+                'nama'      => $user->nama_user,
+                'jabatan'   => $user->jabatan->nama_jabatan ?? '-',
+                'divisi'    => $user->divisi->nama_divisi ?? '-',
+                'hadir'     => $presensi->count(),
+                'terlambat' => $presensi->where('id_status_presensi', 2)->count(),
+                'izin'      => $totalIzin,
+                'cuti'      => $totalCuti,
+                'lembur'    => round($totalLemburMenit / 60), 
+                'wfo'       => $presensi->where('id_kategori_kerja', 1)->count(),
+                'wfa'       => $presensi->where('id_kategori_kerja', 2)->count(),
             ];
         });
     }
@@ -66,13 +86,13 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
             'Nama Karyawan',
             'Jabatan',
             'Divisi',
-            'Hadir',
-            'Terlambat',
-            'Izin',
-            'Cuti',
-            'Lembur',
-            'WFO',
-            'WFA'
+            'Hadir (Hari)',
+            'Terlambat (Hari)',
+            'Izin (Hari)',
+            'Cuti (Hari)',
+            'Lembur (Jam)',
+            'WFO (Hari)',
+            'WFA (Hari)'
         ];
     }
 

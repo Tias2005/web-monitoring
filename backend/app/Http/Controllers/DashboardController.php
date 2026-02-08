@@ -119,31 +119,47 @@ class DashboardController extends Controller
             ->where('id_status_presensi', 2)
             ->count();
 
-        $izinCuti = MtPengajuan::where('id_user', $id_user)
-            ->where(function($query) use ($startOfMonth, $endOfMonth) {
-                $query->whereBetween('tanggal_mulai', [$startOfMonth, $endOfMonth])
-                    ->orWhereBetween('tanggal_selesai', [$startOfMonth, $endOfMonth]);
-            })
+        $pengajuanIzinCuti = MtPengajuan::where('id_user', $id_user)
             ->whereHas('kategori', function($q) {
                 $q->where('nama_pengajuan', 'LIKE', '%Izin%')
                 ->orWhere('nama_pengajuan', 'LIKE', '%Cuti%');
             })
-            ->count();
+            ->where(function($query) use ($startOfMonth, $endOfMonth) {
+                $query->whereBetween('tanggal_mulai', [$startOfMonth, $endOfMonth])
+                    ->orWhereBetween('tanggal_selesai', [$startOfMonth, $endOfMonth]);
+            })
+            ->get();
 
-        $totalLemburMenit = MtPengajuan::where('id_user', $id_user)
+        $totalHariIzinCuti = 0;
+        foreach ($pengajuanIzinCuti as $p) {
+            $mulai = Carbon::parse($p->tanggal_mulai);
+            $selesai = Carbon::parse($p->tanggal_selesai);
+            $totalHariIzinCuti += $mulai->diffInDays($selesai) + 1;
+        }
+
+        $pengajuanLembur = MtPengajuan::where('id_user', $id_user)
             ->whereBetween('tanggal_mulai', [$startOfMonth, $endOfMonth])
             ->whereHas('kategori', function($q) {
                 $q->where('nama_pengajuan', 'LIKE', '%Lembur%');
             })
-            ->sum('durasi');
+            ->get();
+
+        $totalMenitLembur = 0;
+        foreach ($pengajuanLembur as $l) {
+            if ($l->jam_mulai && $l->jam_selesai) {
+                $jamMulai = Carbon::parse($l->jam_mulai);
+                $jamSelesai = Carbon::parse($l->jam_selesai);
+                $totalMenitLembur += $jamMulai->diffInMinutes($jamSelesai);
+            }
+        }
 
         return response()->json([
             'success' => true,
             'data' => [
                 'hadir' => $hadir . ' hari',
                 'terlambat' => $terlambat . ' kali',
-                'izin_cuti' => $izinCuti . ' hari',
-                'lembur' => round($totalLemburMenit / 60) . ' jam',
+                'izin_cuti' => $totalHariIzinCuti . ' hari',
+                'lembur' => round($totalMenitLembur / 60) . ' jam',
             ]
         ]);
     }

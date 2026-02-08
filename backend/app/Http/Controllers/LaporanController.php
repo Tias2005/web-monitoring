@@ -9,10 +9,11 @@ use App\Models\MtPengajuan;
 use App\Exports\LaporanExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
-public function index(Request $request)
+    public function index(Request $request)
     {
         $bulan = $request->query('bulan', date('m'));
         $tahun = $request->query('tahun', date('Y'));
@@ -29,17 +30,36 @@ public function index(Request $request)
                 ->get();
 
             $pengajuan = MtPengajuan::where('id_user', $user->id_user)
-                ->whereMonth('tanggal_mulai', $bulan)
-                ->whereYear('tanggal_mulai', $tahun)
+                ->where(function($q) use ($bulan, $tahun) {
+                    $q->whereMonth('tanggal_mulai', $bulan)->whereYear('tanggal_mulai', $tahun)
+                      ->orWhereMonth('tanggal_selesai', $bulan)->whereYear('tanggal_selesai', $tahun);
+                })
                 ->with('kategori')
                 ->get();
 
-            $izin = 0; $cuti = 0; $lembur = 0;
+            $totalIzin = 0; 
+            $totalCuti = 0; 
+            $totalLemburMenit = 0;
+
             foreach ($pengajuan as $p) {
                 $nama_kat = strtolower($p->kategori->nama_pengajuan ?? '');
-                if (str_contains($nama_kat, 'izin')) $izin++;
-                elseif (str_contains($nama_kat, 'cuti')) $cuti++;
-                elseif (str_contains($nama_kat, 'lembur')) $lembur++;
+                
+                $mulai = Carbon::parse($p->tanggal_mulai);
+                $selesai = Carbon::parse($p->tanggal_selesai);
+                
+                $durasiHari = $mulai->diffInDays($selesai) + 1;
+
+                if (str_contains($nama_kat, 'izin')) {
+                    $totalIzin += $durasiHari;
+                } elseif (str_contains($nama_kat, 'cuti')) {
+                    $totalCuti += $durasiHari;
+                } elseif (str_contains($nama_kat, 'lembur')) {
+                    if ($p->jam_mulai && $p->jam_selesai) {
+                        $jamMulai = Carbon::parse($p->jam_mulai);
+                        $jamSelesai = Carbon::parse($p->jam_selesai);
+                        $totalLemburMenit += $jamMulai->diffInMinutes($jamSelesai);
+                    }
+                }
             }
 
             return [
@@ -49,9 +69,9 @@ public function index(Request $request)
                 'divisi'    => $user->divisi->nama_divisi ?? '-',
                 'hadir'     => $presensi->count(),
                 'terlambat' => $presensi->where('id_status_presensi', 2)->count(),   
-                'izin'      => $izin,
-                'cuti'      => $cuti,
-                'lembur'    => $lembur,
+                'izin'      => $totalIzin,
+                'cuti'      => $totalCuti,
+                'lembur'    => round($totalLemburMenit / 60), 
                 'wfo'       => $presensi->where('id_kategori_kerja', 1)->count(),
                 'wfa'       => $presensi->where('id_kategori_kerja', 2)->count(),
             ];

@@ -29,7 +29,7 @@ class KaryawanExport implements FromCollection, WithHeadings, WithMapping, WithC
 
     public function headings(): array
     {
-        return ["Nama", "Email", "Role", "Jabatan", "Divisi", "No Telepon", "Alamat", "Foto Profil", "Tanggal Bergabung", "Status User"];
+        return ["Nama", "Email", "Role", "Jabatan", "Divisi", "No Telepon", "Alamat", "Tanggal Bergabung", "Status User"];
     }
 
     public function map($karyawan): array
@@ -42,7 +42,7 @@ class KaryawanExport implements FromCollection, WithHeadings, WithMapping, WithC
             $karyawan->nama_divisi,
             "'" . $karyawan->no_telepon, 
             $karyawan->alamat,
-            $karyawan->foto_profil ?? '-',
+            // $karyawan->foto_profil ?? '-',
             $karyawan->tanggal_bergabung,
             $karyawan->status_user == 1 ? "Aktif" : "Tidak Aktif",
         ];
