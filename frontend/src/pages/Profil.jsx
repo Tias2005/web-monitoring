@@ -26,7 +26,7 @@ export default function Profil() {
     const token = localStorage.getItem("token");
     
     try {
-      const res = await axios.post(`http://localhost:8000/api/user/update/${user.id_user}`, formData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/user/update/${user.id_user}`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           Accept: "application/json",

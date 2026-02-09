@@ -21,9 +21,9 @@ export default function Penjadwalan() {
   const fetchData = async () => {
     try {
       const [resJam, resHari, resLibur] = await Promise.all([
-        axios.get("http://localhost:8000/api/jam-kerja"),
-        axios.get("http://localhost:8000/api/hari-kerja"),
-        axios.get("http://localhost:8000/api/hari-libur")
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/jam-kerja`),
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/hari-kerja`),
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/hari-libur`)
       ]);
 
       setData({
@@ -42,7 +42,7 @@ export default function Penjadwalan() {
 
   const fetchJatahCuti = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/jatah-cuti/global");
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/jatah-cuti/global`);
       if (res.data.data) {
         setJatahGlobal({
           jatah: res.data.data.jatah_tahunan_global,
@@ -56,7 +56,7 @@ export default function Penjadwalan() {
 
   const saveJatahCuti = async () => {
     try {
-      await axios.post("http://localhost:8000/api/jatah-cuti/global/update", jatahGlobal);
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/jatah-cuti/global/update`, jatahGlobal);
       Swal.fire("Berhasil!", "Jatah cuti tahunan semua karyawan telah diperbarui.", "success");
       fetchJatahCuti();
     } catch (err) {
@@ -82,7 +82,7 @@ export default function Penjadwalan() {
 
   const saveJamKerja = async () => {
     try {
-      await axios.put(`http://localhost:8000/api/jam-kerja/${formJam.id_jam_kerja}`, formJam);
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/jam-kerja/${formJam.id_jam_kerja}`, formJam);
       Swal.fire("Berhasil!", "Pengaturan jam kerja telah diperbarui.", "success");
       fetchData();
     } catch (err) {
@@ -93,10 +93,10 @@ export default function Penjadwalan() {
   const saveLibur = async () => {
     try {
       if (selectedLibur.id_libur) {
-        await axios.delete(`http://localhost:8000/api/hari-libur/${selectedLibur.id_libur}`);
-        await axios.post("http://localhost:8000/api/hari-libur", selectedLibur);
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/hari-libur/${selectedLibur.id_libur}`);
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/hari-libur`, selectedLibur);
       } else {
-        await axios.post("http://localhost:8000/api/hari-libur", selectedLibur);
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/hari-libur`, selectedLibur);
       }
       Swal.fire("Berhasil!", "Hari libur berhasil diperbarui", "success");
       setShowModal(false);
@@ -120,7 +120,7 @@ export default function Penjadwalan() {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:8000/api/hari-libur/${id}`);
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/hari-libur/${id}`);
         Swal.fire("Terhapus!", "Hari libur telah dihapus.", "success");
         setShowModal(false);
         fetchData();
@@ -141,7 +141,7 @@ export default function Penjadwalan() {
   };
 
   const handleToggleHari = async (id, currentStatus) => {
-    await axios.put(`http://localhost:8000/api/hari-kerja/${id}`, {
+    await axios.put(`${import.meta.env.VITE_API_BASE_URL}/hari-kerja/${id}`, {
       is_hari_kerja: !currentStatus
     });
     fetchData();

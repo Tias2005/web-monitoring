@@ -34,7 +34,7 @@ const Laporan = () => {
 
   const fetchLaporan = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/laporan?bulan=${bulan}&tahun=${tahun}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/laporan?bulan=${bulan}&tahun=${tahun}`);
       if (response.data.success) {
         setDataRekap(response.data.data);
       }
@@ -44,7 +44,7 @@ const Laporan = () => {
   };
 
   const handleExport = () => {
-    const url = `http://localhost:8000/api/laporan/export?bulan=${bulan}&tahun=${tahun}`;
+    const url = `${import.meta.env.VITE_API_BASE_URL}/laporan/export?bulan=${bulan}&tahun=${tahun}`;
     window.open(url, '_blank');
   };
 

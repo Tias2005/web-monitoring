@@ -15,7 +15,7 @@ const Pengajuan = () => {
 
   const fetchPengajuan = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/pengajuan');
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/pengajuan`);
       if (response.data.success) {
         const allData = response.data.data;
         
@@ -50,7 +50,7 @@ const Pengajuan = () => {
   };
 
   const handleDownload = (id) => {
-    window.open(`http://localhost:8000/api/pengajuan/download/${id}`, '_blank');
+    window.open(`${import.meta.env.VITE_API_BASE_URL}/pengajuan/download/${id}`, '_blank');
   };
 
   return (

@@ -33,13 +33,13 @@ export default function Karyawan() {
   }, []);
 
   const fetchKaryawan = async () => {
-    const res = await axios.get("http://localhost:8000/api/karyawan");
+    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/karyawan`);
     setKaryawan(res.data);
   };
 
   const fetchMasterData = async () => {
-    const resJabatan = await axios.get("http://localhost:8000/api/jabatan");
-    const resDivisi = await axios.get("http://localhost:8000/api/divisi");
+    const resJabatan = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/jabatan`);
+    const resDivisi = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/divisi`);
     setJabatan(resJabatan.data);
     setDivisi(resDivisi.data);
   };
@@ -56,10 +56,10 @@ export default function Karyawan() {
     e.preventDefault();
     try {
       if (isEdit) {
-        await axios.put(`http://localhost:8000/api/karyawan/${selectedId}`, formData);
+        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/karyawan/${selectedId}`, formData);
         Swal.fire("Berhasil!", "Data karyawan diperbarui.", "success");
       } else {
-        await axios.post("http://localhost:8000/api/karyawan", formData);
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/karyawan`, formData);
         Swal.fire("Berhasil!", "Karyawan baru ditambahkan.", "success");
       }
       setShowModal(false);
@@ -116,7 +116,7 @@ export default function Karyawan() {
       confirmButtonText: 'Ya, Hapus!'
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await axios.delete(`http://localhost:8000/api/karyawan/${id}`);
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/karyawan/${id}`);
         fetchKaryawan();
         Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success');
       }
@@ -145,7 +145,7 @@ export default function Karyawan() {
         </div>
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginBottom: '20px' }}>
-          <button onClick={() => window.open("http://localhost:8000/api/karyawan/export", "_blank")} className="btn-export-top">
+          <button onClick={() => window.open(`${import.meta.env.VITE_API_BASE_URL}/karyawan/export`, "_blank")} className="btn-export-top">
               EXPORT DATA
           </button>
           <button onClick={() => { setIsEdit(false); setIsDetail(false); setFormData(initialFormState); setShowModal(true); }} className="btn-add">
@@ -196,7 +196,7 @@ export default function Karyawan() {
                 <div className="profile-container">
                 {formData.foto_profil ? (
                     <img 
-                    src={`http://localhost:8000/storage/${formData.foto_profil}`} 
+                      src={`${import.meta.env.VITE_STORAGE_URL}/${formData.foto_profil}`}
                     alt="Profile" 
                     className="profile-pic" 
                     />

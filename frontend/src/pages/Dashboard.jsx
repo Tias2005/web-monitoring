@@ -22,7 +22,7 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/dashboard-stats");
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/dashboard-stats`);
       setData(res.data);
     } catch (err) {
       console.error("Gagal mengambil data dashboard");
