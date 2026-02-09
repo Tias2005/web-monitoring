@@ -3,6 +3,7 @@ import axios from 'axios';
 import '../styles/global.css';
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import DataTable from "../components/DataTable";
 
 const Laporan = () => {
   const [dataRekap, setDataRekap] = useState([]);
@@ -48,6 +49,17 @@ const Laporan = () => {
     window.open(url, '_blank');
   };
 
+  const columns = [
+    { header: "NAMA", key: "nama" },
+    { header: "HADIR/Hari", key: "hadir" },
+    { header: "TERLAMBAT/Hari", key: "terlambat" },
+    { header: "IZIN/Hari", key: "izin" },
+    { header: "CUTI/Hari", key: "cuti" },
+    { header: "LEMBUR/Jam", key: "lembur" },
+    { header: "WFO/Hari", key: "wfo" },
+    { header: "WFA/Hari", key: "wfa" },
+  ];
+
   return (
     <div className="dashboard-layout">
       <Sidebar />
@@ -55,9 +67,9 @@ const Laporan = () => {
         <Header title="Laporan Rekapitulasi" />
 
         <div className="presensi-container">
-          <div className="filter-laporan-container">
+          <div className="filter-laporan-container" style={{ display: 'flex', gap: '10px', marginBottom: '20px', justifyContent: 'flex-end' }}>
             <button className="btn-export-top" onClick={handleExport}>
-              <i className="fas fa-file-excel"></i> EXPORT REKAP
+              EXPORT REKAP
             </button>
             <select value={tahun} onChange={(e) => setTahun(e.target.value)} className="filter-select">
               {daftarTahun.map(t => <option key={t} value={t}>{t}</option>)}
@@ -67,44 +79,11 @@ const Laporan = () => {
             </select>
           </div>
 
-          <div className="table-wrapper">
-            <table className="laporan-table">
-              <thead>
-                <tr>
-                  <th>NAMA</th>
-                  <th>HADIR/Hari</th>
-                  <th>TERLAMBAT/Hari</th>
-                  <th>IZIN/Hari</th>
-                  <th>CUTI/Hari</th>
-                  <th>LEMBUR/Jam</th>
-                  <th>WFO/Hari</th>
-                  <th>WFA/Hari</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dataRekap.length > 0 ? (
-                  dataRekap.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.nama}</td>
-                      <td>{item.hadir}</td>
-                      <td>{item.terlambat}</td>
-                      <td>{item.izin}</td>
-                      <td>{item.cuti}</td>
-                      <td>{item.lembur}</td>
-                      <td>{item.wfo}</td>
-                      <td>{item.wfa}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
-                      Tidak ada data untuk periode ini
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <DataTable 
+            columns={columns} 
+            data={dataRekap} 
+            emptyMessage="Tidak ada data untuk periode ini"
+          />
         </div>
       </div>
     </div>
