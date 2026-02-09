@@ -20,7 +20,9 @@ class MtPresensi extends Model
         'latitude', 
         'longitude', 
         'lokasi', 
-        'id_kategori_kerja'
+        'id_kategori_kerja',
+        'foto_masuk', 
+        'foto_pulang'
     ];
 
     public function user()

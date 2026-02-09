@@ -7,6 +7,7 @@ use App\Models\MtPresensi;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MtPresensiController extends Controller
 {
@@ -97,5 +98,52 @@ class MtPresensiController extends Controller
                 'jadwal'   => $jadwal
             ]
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'id_user' => 'required',
+            'id_kategori_kerja' => 'required',
+            'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048', 
+            'latitude' => 'required',
+            'longitude' => 'required',
+        ]);
+
+        $today = Carbon::now()->toDateString();
+        $now = Carbon::now();
+
+        $presensi = MtPresensi::where('id_user', $request->id_user)
+                              ->where('tanggal', $today)
+                              ->first();
+
+        $path = null;
+        if ($request->hasFile('foto')) {
+            $filename = 'presensi_' . $request->id_user . '_' . time() . '.jpg';
+            $path = $request->file('foto')->storeAs('presensi', $filename, 'public');
+        }
+
+        if (!$presensi) {
+            $newPresensi = MtPresensi::create([
+                'id_user' => $request->id_user,
+                'tanggal' => $today,
+                'jam_masuk' => $now->toTimeString(),
+                'id_status_presensi' => 1, 
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'lokasi' => $request->lokasi,
+                'id_kategori_kerja' => $request->id_kategori_kerja,
+                'foto_masuk' => $path, 
+            ]);
+
+            return response()->json(['message' => 'Berhasil Absen Masuk', 'data' => $newPresensi]);
+        } else {
+            $presensi->update([
+                'jam_pulang' => $now->toTimeString(),
+                'foto_pulang' => $path, 
+            ]);
+
+            return response()->json(['message' => 'Berhasil Absen Pulang', 'data' => $presensi]);
+        }
     }
 }
