@@ -17,6 +17,13 @@ use App\Http\Controllers\MtHariLiburController;
 use App\Http\Controllers\MtNotifikasiController;
 use App\Http\Controllers\MtJatahCutiController;
 
+Route::options('{any}', function (Request $request) {
+    return response()->json([], 200)
+        ->header('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+        ->header('Access-Control-Allow-Headers', '*');
+})->where('any', '.*');
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/login-mobile', [AuthController::class, 'loginMobile']);
 
