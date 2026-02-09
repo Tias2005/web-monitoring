@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from "../lib/api";
 import '../styles/global.css';
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
@@ -17,7 +18,7 @@ const Pengajuan = () => {
 
   const fetchPengajuan = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/pengajuan`);
+      const response = await api.get("/pengajuan");
       if (response.data.success) {
         const allData = response.data.data;
 
@@ -52,7 +53,7 @@ const Pengajuan = () => {
   };
 
   const handleDownload = (id) => {
-    window.open(`${import.meta.env.VITE_API_BASE_URL}/pengajuan/download/${id}`, '_blank');
+    window.open(`${import.meta.env.VITE_API_BASE_URL}/pengajuan/download/${id}`, "_blank");
   };
 
   return (

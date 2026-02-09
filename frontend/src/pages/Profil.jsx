@@ -5,6 +5,7 @@ import Sidebar from "../components/Sidebar";
 import { FaEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
 import axios from "axios";
+import api from "../lib/api";
 import EditProfilModal from "../components/EditProfilModal";
 
 export default function Profil() {
@@ -25,7 +26,7 @@ const handleUpdate = async (e) => {
     const token = localStorage.getItem("token");
     
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/user/update/${user.id_user}`, formData, {
+      const res = await api.post(`/user/update/${user.id_user}`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           Accept: "application/json",

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../lib/api";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
@@ -22,7 +23,7 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/dashboard-stats`);
+      const res = await api.get("/dashboard-stats");
       setData(res.data);
     } catch (err) {
       console.error("Gagal mengambil data dashboard");

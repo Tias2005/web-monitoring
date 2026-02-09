@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from "../lib/api";
 import '../styles/global.css';
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
@@ -35,7 +36,7 @@ const Laporan = () => {
 
   const fetchLaporan = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/laporan?bulan=${bulan}&tahun=${tahun}`);
+      const response = await api.get(`/laporan?bulan=${bulan}&tahun=${tahun}`);
       if (response.data.success) {
         setDataRekap(response.data.data);
       }

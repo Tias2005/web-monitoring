@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../lib/api";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import Swal from "sweetalert2";
@@ -35,13 +36,13 @@ export default function Karyawan() {
   }, []);
 
   const fetchKaryawan = async () => {
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/karyawan`);
+    const res = await api.get("/karyawan");
     setKaryawan(res.data);
   };
 
   const fetchMasterData = async () => {
-    const resJabatan = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/jabatan`);
-    const resDivisi = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/divisi`);
+    const resJabatan = await api.get("/jabatan");
+    const resDivisi = await api.get("/divisi");
     setJabatan(resJabatan.data);
     setDivisi(resDivisi.data);
   };
@@ -58,10 +59,10 @@ export default function Karyawan() {
     e.preventDefault();
     try {
       if (isEdit) {
-        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/karyawan/${selectedId}`, formData);
+        await api.put(`/karyawan/${selectedId}`, formData);
         Swal.fire("Berhasil!", "Data karyawan diperbarui.", "success");
       } else {
-        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/karyawan`, formData);
+        await api.post("/karyawan", formData);
         Swal.fire("Berhasil!", "Karyawan baru ditambahkan.", "success");
       }
       setShowModal(false);
@@ -118,7 +119,7 @@ export default function Karyawan() {
       confirmButtonText: 'Ya, Hapus!'
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/karyawan/${id}`);
+        await api.delete(`/karyawan/${id}`);
         fetchKaryawan();
         Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success');
       }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from "../lib/api";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import PresensiList from "../components/PresensiList";
@@ -16,7 +17,7 @@ const Presensi = () => {
 
   const fetchPresensi = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/presensi`);
+      const res = await api.get("/presensi");
       setDataPresensi(res.data.data);
       setStats(res.data.stats);
     } catch (err) {

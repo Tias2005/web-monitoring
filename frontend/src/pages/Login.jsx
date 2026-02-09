@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import api from "../lib/api";
 import { useNavigate } from "react-router-dom";
 import "../styles/global.css"; 
 import Swal from "sweetalert2";
@@ -19,7 +20,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/login`, {
+      const res = await api.post("/login", {
         email_user: email,
         password_user: password,
       });
