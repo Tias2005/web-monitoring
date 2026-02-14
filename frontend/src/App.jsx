@@ -7,6 +7,7 @@ import Pengajuan from "./pages/Pengajuan";
 import Laporan from "./pages/Laporan";
 import Profil from "./pages/Profil";
 import Penjadwalan from "./pages/Penjadwalan";
+import Pengaturan from "./pages/Pengaturan";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/laporan" element={<Laporan />} />
         <Route path="/profil" element={<Profil />} />
         <Route path="/penjadwalan" element={<Penjadwalan />} />
+        <Route path="/pengaturan" element={<Pengaturan />} />
       </Routes>
     </BrowserRouter>
   );

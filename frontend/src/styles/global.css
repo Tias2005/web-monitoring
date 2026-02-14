@@ -1636,3 +1636,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .mini-table tbody tr:hover {
   background-color: #fcfcfc;
 }
+
+/* --- LAYOUT PENGATURAN --- */
+.form-control {
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #000000;
+  font-size: 15px;
+  background-color: white;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
