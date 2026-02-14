@@ -100,6 +100,8 @@ class AuthController extends Controller
                 'tanggal_bergabung'=> $tglJoin,            
                 'no_telepon'       => (string) $user->no_telepon,
                 'alamat'           => $user->alamat,
+                'latitude_rumah'   => $user->latitude_rumah,
+                'longitude_rumah'  => $user->longitude_rumah,
                 'status_user'      => $statusTeks,
             ]
         ]);
@@ -118,6 +120,8 @@ class AuthController extends Controller
             'email_user' => 'required|email|unique:mt_user,email_user,' . $id . ',id_user',
             'no_telepon' => 'nullable|string',
             'alamat'     => 'nullable|string',
+            'latitude_rumah' => 'nullable|numeric',
+            'longitude_rumah' => 'nullable|numeric',
             'password_before' => 'nullable',
             'new_password'    => 'nullable|min:6',
         ]);
@@ -127,6 +131,8 @@ class AuthController extends Controller
         $user->email_user = $request->email_user;
         $user->no_telepon = $request->no_telepon;
         $user->alamat = $request->alamat;
+        $user->latitude_rumah = $request->latitude_rumah;
+        $user->longitude_rumah = $request->longitude_rumah;
 
         if ($request->filled('new_password')) {
             if (!Hash::check($request->password_before, $user->password_user)) {
@@ -154,6 +160,8 @@ class AuthController extends Controller
             'tanggal_bergabung' => $tglJoin,
             'no_telepon'        => (string) $user->no_telepon,
             'alamat'            => $user->alamat,
+            'latitude_rumah'    => $user->latitude_rumah,
+            'longitude_rumah'   => $user->longitude_rumah,
             'status_user'       => $statusTeks,
         ];
 

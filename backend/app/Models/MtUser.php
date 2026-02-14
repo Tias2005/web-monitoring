@@ -31,6 +31,8 @@ class MtUser extends Authenticatable
         'tanggal_bergabung',
         'status_user',
         'embedding_vector',
+        'latitude_rumah',
+        'longitude_rumah',
         'created_at',
         'updated_at', 
     ];

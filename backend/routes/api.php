@@ -85,4 +85,5 @@ Route::prefix('jatah-cuti')->group(function () {
 });
 
 Route::get('/lokasi-presensi', [MtLokasiPresensiController::class, 'index']);
+Route::post('/presensi/store', [MtPresensiController::class, 'store']);
 Route::post('/lokasi-presensi/update', [MtLokasiPresensiController::class, 'update']);
