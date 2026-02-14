@@ -22,7 +22,9 @@ class MtPresensi extends Model
         'lokasi', 
         'id_kategori_kerja',
         'foto_masuk', 
-        'foto_pulang'
+        'foto_pulang',
+        'created_at',
+        'updated_at'
     ];
 
     public function user()

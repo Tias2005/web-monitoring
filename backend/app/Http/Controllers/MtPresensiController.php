@@ -23,7 +23,8 @@ class MtPresensiController extends Controller
             'tepat_waktu' => $presensi->where('id_status_presensi', 1)->count(),
             'terlambat'   => $presensi->where('id_status_presensi', 2)->count(),
             'wfo'         => $presensi->where('id_kategori_kerja', 1)->count(),
-            'wfa'         => $presensi->where('id_kategori_kerja', 2)->count(),
+            'wfh'         => $presensi->where('id_kategori_kerja', 2)->count(),
+            'wfa'         => $presensi->where('id_kategori_kerja', 3)->count(),
             'total'       => $presensi->count()
         ];
 
@@ -61,7 +62,7 @@ class MtPresensiController extends Controller
         $jamKerja = \App\Models\MtJamKerja::where('is_active', true)->first();
 
         $presensi = MtPresensi::where('id_user', $id_user)
-                    ->where('tanggal', $today)
+                    ->whereDate('tanggal', $today)
                     ->first();
 
         return response()->json([
@@ -104,7 +105,7 @@ class MtPresensiController extends Controller
     {
         $request->validate([
             'id_user' => 'required',
-            'id_kategori_kerja' => 'required',
+            // 'id_kategori_kerja' => 'required',
             'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
@@ -145,7 +146,7 @@ class MtPresensiController extends Controller
         }
 
         $presensi = MtPresensi::where('id_user', $request->id_user)
-                                ->where('tanggal', $today)
+                                ->whereDate('tanggal', $today)
                                 ->first();
 
         $path = null;
@@ -155,40 +156,71 @@ class MtPresensiController extends Controller
         }
 
         if (!$presensi) {            
-            if ($currentTime < $jamKerja->mulai_absen_masuk) {
-                return response()->json(['message' => 'Belum waktunya absen masuk. Mulai jam: ' . $jamKerja->mulai_absen_masuk], 422);
+
+            if (!$request->id_kategori_kerja) {
+                return response()->json(['message' => 'Mode kerja wajib dipilih saat absen masuk'], 422);
             }
-            
-            $idStatus = ($currentTime > $jamKerja->jam_masuk) ? 2 : 1;
+
+            if ($currentTime < $jamKerja->mulai_absen_masuk) {
+                return response()->json([
+                    'message' => 'Belum waktunya absen masuk. Mulai jam: ' . $jamKerja->mulai_absen_masuk
+                ], 422);
+            }
+
+            if ($currentTime > $jamKerja->akhir_absen_masuk) {
+                $idStatus = 2; // Terlambat
+            } else {
+                $idStatus = 1; // Tepat waktu
+            }
 
             $newPresensi = MtPresensi::create([
                 'id_user' => $request->id_user,
                 'tanggal' => $today,
                 'jam_masuk' => $currentTime,
-                'id_status_presensi' => $idStatus, 
+                'id_status_presensi' => $idStatus,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
                 'id_kategori_kerja' => $request->id_kategori_kerja,
-                'foto_masuk' => $path, 
+                'foto_masuk' => $path,
             ]);
 
-            $msg = ($idStatus == 2) ? 'Berhasil Absen Masuk (Terlambat)' : 'Berhasil Absen Masuk Tepat Waktu';
-            return response()->json(['message' => $msg, 'data' => $newPresensi]);
+            $msg = ($idStatus == 2)
+                ? 'Berhasil Absen Masuk (Terlambat)'
+                : 'Berhasil Absen Masuk Tepat Waktu';
 
+            return response()->json([
+                'message' => $msg,
+                'data' => $newPresensi
+            ]);
         } else {            
             if ($presensi->jam_pulang != null) {
-                return response()->json(['message' => 'Anda sudah melakukan absen pulang hari ini'], 422);
+                return response()->json([
+                    'message' => 'Anda sudah melakukan absen pulang hari ini'
+                ], 422);
             }
             if ($currentTime < $jamKerja->mulai_absen_pulang) {
-                return response()->json(['message' => 'Belum waktunya absen pulang. Minimal jam: ' . $jamKerja->mulai_absen_pulang], 422);
+                return response()->json([
+                    'message' => 'Belum waktunya absen pulang. Minimal jam: ' 
+                    . $jamKerja->mulai_absen_pulang
+                ], 422);
             }
+
+            $statusFinal = $presensi->id_status_presensi;
+
             $presensi->update([
                 'jam_pulang' => $currentTime,
-                'foto_pulang' => $path, 
+                'foto_pulang' => $path,
+                'id_status_presensi' => $statusFinal 
             ]);
 
-            return response()->json(['message' => 'Berhasil Absen Pulang', 'data' => $presensi]);
+            return response()->json([
+                'message' => 
+                    ($statusFinal == 2)
+                        ? 'Berhasil Absen Pulang (Status Hari Ini: Terlambat)'
+                        : 'Berhasil Absen Pulang',
+                'data' => $presensi
+            ]);
         }
     }
 
