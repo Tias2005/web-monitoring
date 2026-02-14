@@ -16,6 +16,7 @@ use App\Http\Controllers\MtHariKerjaController;
 use App\Http\Controllers\MtHariLiburController;
 use App\Http\Controllers\MtNotifikasiController;
 use App\Http\Controllers\MtJatahCutiController;
+use App\Http\Controllers\MtLokasiPresensiController;
 
 Route::options('{any}', function (Request $request) {
     return response()->json([], 200)
@@ -82,3 +83,6 @@ Route::prefix('jatah-cuti')->group(function () {
     Route::post('/global/update', [MtJatahCutiController::class, 'updateGlobal']);
     Route::get('/karyawan/{id_user}', [MtJatahCutiController::class, 'getSisaCutiKaryawan']);
 });
+
+Route::get('/lokasi-presensi', [MtLokasiPresensiController::class, 'index']);
+Route::post('/lokasi-presensi/update', [MtLokasiPresensiController::class, 'update']);
