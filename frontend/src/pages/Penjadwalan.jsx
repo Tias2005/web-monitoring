@@ -101,7 +101,7 @@ export default function Penjadwalan() {
       <div className="dashboard-content">
         <Header title="Penjadwalan Kerja" />
 
-        <div className="presensi-container">
+        <div className="penjadwalan-container">
           <JatahCutiCard 
             jatahGlobal={jatahGlobal} 
             setJatahGlobal={setJatahGlobal} 
