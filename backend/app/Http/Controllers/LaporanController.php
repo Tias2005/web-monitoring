@@ -73,7 +73,8 @@ class LaporanController extends Controller
                 'cuti'      => $totalCuti,
                 'lembur'    => round($totalLemburMenit / 60), 
                 'wfo'       => $presensi->where('id_kategori_kerja', 1)->count(),
-                'wfa'       => $presensi->where('id_kategori_kerja', 2)->count(),
+                'wfh'       => $presensi->where('id_kategori_kerja', 2)->count(),
+                'wfa'       => $presensi->where('id_kategori_kerja', 3)->count(),
             ];
         });
 

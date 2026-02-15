@@ -75,7 +75,8 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
                 'cuti'      => $totalCuti,
                 'lembur'    => round($totalLemburMenit / 60), 
                 'wfo'       => $presensi->where('id_kategori_kerja', 1)->count(),
-                'wfa'       => $presensi->where('id_kategori_kerja', 2)->count(),
+                'wfh'       => $presensi->where('id_kategori_kerja', 2)->count(),
+                'wfa'       => $presensi->where('id_kategori_kerja', 3)->count(),
             ];
         });
     }
@@ -92,6 +93,7 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
             'Cuti (Hari)',
             'Lembur (Jam)',
             'WFO (Hari)',
+            'WFH (Hari)',
             'WFA (Hari)'
         ];
     }
@@ -108,6 +110,7 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
             $row['cuti'],
             $row['lembur'],
             $row['wfo'],
+            $row['wfh'],
             $row['wfa']
         ];
     }

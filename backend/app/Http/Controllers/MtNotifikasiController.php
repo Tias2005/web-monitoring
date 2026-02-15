@@ -29,4 +29,9 @@ class MtNotifikasiController extends Controller
         }
         return response()->json(['message' => 'Data tidak ditemukan'], 404);
     }
+
+    public function getUnreadCount($id_user) {
+        $count = MtNotifikasi::where('id_user', $id_user)->where('status_baca', 0)->count();
+        return response()->json(['status' => 'success', 'unread_count' => $count]);
+    }
 }
