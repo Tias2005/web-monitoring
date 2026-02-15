@@ -31,7 +31,7 @@ const Presensi = () => {
       <div className="dashboard-content">
         <Header title="Presensi" />
 
-        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginTop: '20px', marginBottom: '20px' }}>
+        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', marginTop: '20px', marginBottom: '20px' }}>
           <div className="stat-card">
             <h3>{stats.tepat_waktu || 0}</h3>
             <p>Tepat Waktu</p>
@@ -43,6 +43,10 @@ const Presensi = () => {
           <div className="stat-card">
             <h3>{stats.wfo || 0}</h3>
             <p>Total WFO</p>
+          </div>
+          <div className="stat-card">
+            <h3>{stats.wfh || 0}</h3>
+            <p>Total WFH</p>
           </div>
           <div className="stat-card">
             <h3>{stats.wfa || 0}</h3>

@@ -58,6 +58,7 @@ const Laporan = () => {
     { header: "CUTI/Hari", key: "cuti" },
     { header: "LEMBUR/Jam", key: "lembur" },
     { header: "WFO/Hari", key: "wfo" },
+    { header: "WFH/Hari", key: "wfh" },
     { header: "WFA/Hari", key: "wfa" },
   ];
 

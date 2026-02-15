@@ -47,26 +47,40 @@ export default function Pengaturan() {
 
   const fetchAddress = async (lat, lng) => {
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
-      );
-      const data = await response.json();
-      if (data && data.display_name) {
+      const response = await api.post("/lokasi-presensi/reverse", {
+        lat: lat,
+        lng: lng,
+      });
+
+      if (response.data.success) {
         setFormData((prev) => ({
           ...prev,
           latitude_kantor: lat,
           longitude_kantor: lng,
-          alamat_kantor: data.display_name,
+          alamat_kantor: response.data.data.display_name,
         }));
       }
     } catch (error) {
       console.error("Gagal mengambil alamat:", error);
-      setFormData((prev) => ({
-        ...prev,
-        latitude_kantor: lat,
-        longitude_kantor: lng,
-      }));
     }
+  };
+
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation tidak didukung browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        fetchAddress(latitude, longitude);
+      },
+      (error) => {
+        console.error(error);
+        alert("Gagal mengambil lokasi.");
+      }
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -150,6 +164,17 @@ export default function Pengaturan() {
                 position: 'relative',
                 zIndex: 0 
               }}>
+
+              <div style={{ marginBottom: "15px" }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={getCurrentLocation}
+                >
+                  Ambil Lokasi Saat Ini
+                </button>
+              </div>
+
                 <MapContainer 
                   center={[formData.latitude_kantor, formData.longitude_kantor]} 
                   zoom={16} 
