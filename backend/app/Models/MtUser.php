@@ -34,7 +34,8 @@ class MtUser extends Authenticatable
         'latitude_rumah',
         'longitude_rumah',
         'created_at',
-        'updated_at', 
+        'updated_at',
+        'fcm_token', 
     ];
 
     protected $hidden = [

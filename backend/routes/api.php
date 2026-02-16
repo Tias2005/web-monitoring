@@ -31,6 +31,9 @@ Route::post('/login-mobile', [AuthController::class, 'loginMobile']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::match(['post', 'put'], '/user/update/{id}', [AuthController::class, 'updateProfile']);
     Route::post('/user/register-face', [AuthController::class, 'registerFace']);
+
+    Route::get('/notifications/{id_user}', [MtNotifikasiController::class, 'getByUser']);
+    Route::put('/notifications/read/{id}', [MtNotifikasiController::class, 'markAsRead']);
 });
 
 Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);
@@ -75,18 +78,15 @@ Route::get('/hari-libur', [MtHariLiburController::class, 'index']);
 Route::post('/hari-libur', [MtHariLiburController::class, 'store']);
 Route::delete('/hari-libur/{id}', [MtHariLiburController::class, 'destroy']);
 
-Route::get('/notifications/{id_user}', [MtNotifikasiController::class, 'getByUser']);
-Route::put('/notifications/read/{id}', [MtNotifikasiController::class, 'markAsRead']);
-
 Route::prefix('jatah-cuti')->group(function () {
     Route::get('/global', [MtJatahCutiController::class, 'getGlobalSetting']);
     Route::post('/global/update', [MtJatahCutiController::class, 'updateGlobal']);
     Route::get('/karyawan/{id_user}', [MtJatahCutiController::class, 'getSisaCutiKaryawan']);
 });
 
-Route::get('/lokasi-presensi', [MtLokasiPresensiController::class, 'index']);
+// Route::get('/lokasi-presensi', [MtLokasiPresensiController::class, 'index']);
 Route::post('/presensi/store', [MtPresensiController::class, 'store']);
-Route::post('/lokasi-presensi/update', [MtLokasiPresensiController::class, 'update']);
+// Route::post('/lokasi-presensi/update', [MtLokasiPresensiController::class, 'update']);
 
 Route::get('/lokasi-presensi', [MtLokasiPresensiController::class, 'index']);
 Route::post('/lokasi-presensi/update', [MtLokasiPresensiController::class, 'update']);

@@ -15,6 +15,6 @@ class MtNotifikasi extends Model
         'status_baca', // 0: belum, 1: sudah
     ];
 
-    const CREATED_AT = 'create_at';
+    const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 }

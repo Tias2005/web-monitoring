@@ -7,6 +7,8 @@ use App\Models\MtJatahCutiKaryawan;
 use App\Models\MtUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\FirebaseService;
+use App\Models\MtNotifikasi;
 
 class   MtJatahCutiController extends Controller
 {
@@ -48,6 +50,23 @@ class   MtJatahCutiController extends Controller
             }
 
             DB::commit();
+
+            foreach ($users as $user) {
+            MtNotifikasi::create([
+                'id_user' => $user->id_user,
+                'pesan' => 'Jatah cuti tahunan telah diperbarui',
+                'status_baca' => 0
+            ]);
+
+            if ($user->fcm_token) {
+                (new FirebaseService())->sendNotification(
+                    $user->fcm_token,
+                    'Update Jatah Cuti',
+                    'Jatah cuti Anda telah diperbarui'
+                );
+            }
+        }
+
             return response()->json(['success' => true, 'message' => 'Kebijakan cuti diterapkan ke semua karyawan']);
         } catch (\Exception $e) {
             DB::rollBack();

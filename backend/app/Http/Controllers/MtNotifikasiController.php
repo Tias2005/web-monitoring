@@ -10,7 +10,7 @@ class MtNotifikasiController extends Controller
     public function getByUser($id_user)
     {
         $notifications = MtNotifikasi::where('id_user', $id_user)
-            ->orderBy('create_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json([

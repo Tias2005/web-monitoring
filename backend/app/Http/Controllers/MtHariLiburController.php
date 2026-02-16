@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\MtHariLibur;
 use Illuminate\Http\Request;
+use App\Services\FirebaseService;
+use App\Models\MtUser;
+use App\Models\MtNotifikasi;
 
 class MtHariLiburController extends Controller {
     public function index() {
@@ -17,6 +20,23 @@ class MtHariLiburController extends Controller {
             'kategori_libur' => 'required'
         ]);
         MtHariLibur::create($validated);
+        $users = MtUser::where('status_user', 1)->get();
+        
+        foreach ($users as $user) {
+            MtNotifikasi::create([
+                'id_user' => $user->id_user,
+                'pesan' => 'Hari libur baru telah ditambahkan: ' . $request->nama_libur,
+                'status_baca' => 0
+            ]);
+
+            if ($user->fcm_token) {
+                (new FirebaseService())->sendNotification(
+                    $user->fcm_token,
+                    'Hari Libur Baru',
+                    $request->nama_libur
+                );
+            }
+        }
         return response()->json(['message' => 'Hari libur berhasil ditambahkan']);
     }
 

@@ -210,4 +210,23 @@ class AuthController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function saveFcmToken(Request $request)
+    {
+        $request->validate([
+            'id_user' => 'required',
+            'fcm_token' => 'required'
+        ]);
+
+        $user = \App\Models\MtUser::find($request->id_user);
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan'], 404);
+        }
+
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+
+        return response()->json(['message' => 'Token tersimpan']);
+    }
+
 }

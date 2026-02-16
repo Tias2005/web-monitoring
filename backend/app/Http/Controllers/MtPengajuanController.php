@@ -8,6 +8,7 @@ use App\Models\MtJatahCutiKaryawan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Services\FirebaseService;
 use Carbon\Carbon;
 
 class MtPengajuanController extends Controller
@@ -113,6 +114,23 @@ class MtPengajuanController extends Controller
             ]);
 
             DB::commit();
+
+            \App\Models\MtNotifikasi::create([
+                'id_user' => $request->id_user,
+                'pesan' => 'Pengajuan berhasil dikirim ke admin',
+                'status_baca' => 0
+            ]);
+
+            $user = \App\Models\MtUser::find($request->id_user);
+
+            if ($user && $user->fcm_token) {
+                $firebase = new FirebaseService();
+                $firebase->sendNotification(
+                    $user->fcm_token,
+                    'Pengajuan Berhasil',
+                    'Pengajuan Anda berhasil dikirim ke admin'
+                );
+            }
 
             return response()->json([
                 'success' => true, 
