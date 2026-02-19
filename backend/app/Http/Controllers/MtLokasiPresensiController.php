@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MtLokasiPresensi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\Response;
 
 class MtLokasiPresensiController extends Controller
 {
@@ -51,17 +52,20 @@ class MtLokasiPresensiController extends Controller
             'lng' => 'required|numeric'
         ]);
 
-        $response = Http::get('https://us1.locationiq.com/v1/reverse', [
-            'key'    => env('LOCATIONIQ_KEY'),
+        $response = Http::withHeaders([
+            'User-Agent' => 'com.presensi.example'
+        ])->get('https://nominatim.openstreetmap.org/reverse', [
             'lat'    => $request->lat,
             'lon'    => $request->lng,
-            'format' => 'json'
+            'format' => 'json',
+            'addressdetails' => 1
         ]);
 
         if ($response->failed()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengambil alamat dari LocationIQ'
+                'message' => 'Gagal mengambil alamat dari OSM Nominatim',
+                'error'   => $response->body()
             ], 500);
         }
 
@@ -70,6 +74,5 @@ class MtLokasiPresensiController extends Controller
             'data'    => $response->json()
         ], 200);
     }
-
 
 }

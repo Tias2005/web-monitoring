@@ -32,8 +32,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::match(['post', 'put'], '/user/update/{id}', [AuthController::class, 'updateProfile']);
     Route::post('/user/register-face', [AuthController::class, 'registerFace']);
 
+    Route::post('/save-fcm-token', [AuthController::class, 'saveFcmToken']);
+
     Route::get('/notifications/{id_user}', [MtNotifikasiController::class, 'getByUser']);
     Route::put('/notifications/read/{id}', [MtNotifikasiController::class, 'markAsRead']);
+    Route::get('/notifications/unread-count/{id_user}', [MtNotifikasiController::class, 'getUnreadCount']);
+    Route::get('/test-notif/{id}', [MtNotifikasiController::class, 'testNotif']);
+
 });
 
 Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);
