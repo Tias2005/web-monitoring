@@ -51,7 +51,8 @@ export default function Login() {
   return (
     <div className="login-wrapper">
       <div className="login-card">
-        <div className="login-header">
+        <div className="login-header" style={{ textAlign: "center" }}>
+          <img src="/logo/logo_aplikasi_presensi.png" alt="Logo" style={{ width: "80px", marginBottom: "10px" }} />
           <h2 className="login-title">Selamat Datang</h2>
           <p className="login-subtitle">Silakan login ke akun Admin Anda</p>
         </div>
@@ -89,7 +90,9 @@ export default function Login() {
         </form>
 
         <p className="login-footer">
-          Lupa password? <span style={{ color: "#4f46e5", cursor: "pointer" }}>Reset di sini</span>
+          Lupa password? <span 
+            onClick={() => navigate("/lupa-password")} 
+            style={{ color: "#4f46e5", cursor: "pointer" }}>Reset di sini</span>
         </p>
       </div>
     </div>

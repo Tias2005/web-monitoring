@@ -8,6 +8,9 @@ import Laporan from "./pages/Laporan";
 import Profil from "./pages/Profil";
 import Penjadwalan from "./pages/Penjadwalan";
 import Pengaturan from "./pages/Pengaturan";
+import LupaPassword from "./pages/LupaPassword";
+import VerifikasiOtp from "./pages/VerifikasiOtp";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
         <Route path="/profil" element={<Profil />} />
         <Route path="/penjadwalan" element={<Penjadwalan />} />
         <Route path="/pengaturan" element={<Pengaturan />} />
+        <Route path="/lupa-password" element={<LupaPassword />} />
+        <Route path="/verifikasi-otp" element={<VerifikasiOtp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   );
