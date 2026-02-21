@@ -44,6 +44,16 @@ class FirebaseService
                             'title' => $title,
                             'body'  => $body,
                         ],
+                        'data' => [
+                            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                            'type' => 'reminder',
+                        ],
+                        'android' => [
+                            'priority' => 'high', 
+                            'notification' => [
+                                'channel_id' => 'high_importance_channel', 
+                            ],
+                        ],
                     ],
                 ],
             ]);

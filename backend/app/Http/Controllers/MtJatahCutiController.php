@@ -20,53 +20,63 @@ class   MtJatahCutiController extends Controller
         ]);
 
         DB::beginTransaction();
-        try {
+    try {
+            $tahun = $request->tahun;
+            $jatahBaru = $request->jatah;
+
+            $globalLama = MtJatahCuti::where('tahun_berlaku', $tahun)->first();
+            $jatahLamaGlobal = $globalLama ? $globalLama->jatah_tahunan_global : 0;
+
             MtJatahCuti::updateOrCreate(
-                ['tahun_berlaku' => $request->tahun],
-                ['jatah_tahunan_global' => $request->jatah]
+                ['tahun_berlaku' => $tahun],
+                ['jatah_tahunan_global' => $jatahBaru]
             );
 
             $users = MtUser::where('status_user', 1)->get();
 
             foreach ($users as $user) {
                 $jatahKaryawan = MtJatahCutiKaryawan::where('id_user', $user->id_user)
-                    ->where('tahun', $request->tahun)
+                    ->where('tahun', $tahun)
                     ->first();
 
+                $totalLama = $jatahKaryawan ? $jatahKaryawan->total_jatah : 0;
+                
                 if ($jatahKaryawan) {
                     $jatahKaryawan->update([
-                        'total_jatah' => $request->jatah,
-                        'sisa' => $request->jatah - $jatahKaryawan->terpakai
+                        'total_jatah' => $jatahBaru,
+                        'sisa' => $jatahBaru - $jatahKaryawan->terpakai
                     ]);
                 } else {
-                    MtJatahCutiKaryawan::create([
+                    $jatahKaryawan = MtJatahCutiKaryawan::create([
                         'id_user' => $user->id_user,
-                        'tahun' => $request->tahun,
-                        'total_jatah' => $request->jatah,
+                        'tahun' => $tahun,
+                        'total_jatah' => $jatahBaru,
                         'terpakai' => 0,
-                        'sisa' => $request->jatah
+                        'sisa' => $jatahBaru
                     ]);
+                }
+
+                $judul = "Update Jatah Cuti " . $tahun;
+                $pesan = "Jatah cuti tahunan telah diperbarui oleh Admin.\n\n"
+                    . "📅 Tahun: " . $tahun . "\n"
+                    . "📝 Jatah Sebelumnya: " . $totalLama . " hari\n"
+                    . "✅ Jatah Baru: " . $jatahBaru . " hari\n"
+                    . "💡 Sisa Jatah Anda: " . $jatahKaryawan->sisa . " hari\n\n"
+                    . "Silahkan hubungi HRD jika ada ketidaksesuaian.";
+
+                MtNotifikasi::create([
+                    'id_user' => $user->id_user,
+                    'judul' => $judul,
+                    'pesan' => $pesan,
+                    'status_baca' => 0
+                ]);
+
+                if ($user->fcm_token) {
+                    (new FirebaseService())->sendNotification($user->fcm_token, $judul, "Cek detail perubahan jatah cuti Anda.");
                 }
             }
 
             DB::commit();
-
-            foreach ($users as $user) {
-            MtNotifikasi::create([
-                'id_user' => $user->id_user,
-                'pesan' => 'Jatah cuti tahunan telah diperbarui',
-                'status_baca' => 0
-            ]);
-
-            if ($user->fcm_token) {
-                (new FirebaseService())->sendNotification(
-                    $user->fcm_token,
-                    'Update Jatah Cuti',
-                    'Jatah cuti Anda telah diperbarui'
-                );
-            }
-        }
-
             return response()->json(['success' => true, 'message' => 'Kebijakan cuti diterapkan ke semua karyawan']);
         } catch (\Exception $e) {
             DB::rollBack();

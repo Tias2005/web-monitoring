@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\MtPengajuan;
 use App\Models\MtJatahCutiKaryawan;
+use App\Models\MtUser;
+use App\Models\MtNotifikasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -38,23 +40,6 @@ class MtPengajuanController extends Controller
         ]);
     }
 
-    public function download($id)
-    {
-        $pengajuan = MtPengajuan::findOrFail($id);
-        
-        if (!$pengajuan->lampiran) {
-            return response()->json(['message' => 'Lampiran tidak tersedia'], 404);
-        }
-
-        $path = 'public/pengajuan/' . $pengajuan->lampiran;
-
-        if (!Storage::exists($path)) {
-            return response()->json(['message' => 'File fisik tidak ditemukan di server'], 404);
-        }
-
-        return Storage::download($path, $pengajuan->lampiran);
-    }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -66,16 +51,22 @@ class MtPengajuanController extends Controller
             'lampiran' => 'nullable|file|mimes:pdf,jpeg,png,jpg,doc,docx|max:2048'
         ]);
 
+        $user = MtUser::find($request->id_user);
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan'], 404);
+        }
+
         $tglMulai = Carbon::parse($request->tanggal_mulai);
         $tglSelesai = Carbon::parse($request->tanggal_selesai ?? $request->tanggal_mulai);
         $durasi = $tglMulai->diffInDays($tglSelesai) + 1;
+        $tahunSekarang = date('Y');
 
         DB::beginTransaction();
 
         try {
+            $sisaCutiTersisa = null;
+
             if ($request->id_kategori_pengajuan == 2) { 
-                $tahunSekarang = date('Y');
-                
                 $saldo = MtJatahCutiKaryawan::where('id_user', $request->id_user)
                     ->where('tahun', $tahunSekarang)
                     ->lockForUpdate() 
@@ -84,7 +75,7 @@ class MtPengajuanController extends Controller
                 if (!$saldo || $saldo->sisa < $durasi) {
                     return response()->json([
                         'success' => false, 
-                        'message' => 'Anda mengambil melebihi jatah cuti. Sisa saat ini: ' . ($saldo->sisa ?? 0)
+                        'message' => 'Jatah cuti tidak mencukupi. Sisa: ' . ($saldo->sisa ?? 0) . ' hari.'
                     ], 400);
                 }
 
@@ -92,6 +83,8 @@ class MtPengajuanController extends Controller
                     'terpakai' => $saldo->terpakai + $durasi,
                     'sisa' => $saldo->sisa - $durasi
                 ]);
+                
+                $sisaCutiTersisa = $saldo->sisa;
             }
 
             $fileName = null;
@@ -113,37 +106,69 @@ class MtPengajuanController extends Controller
                 'status_pengajuan' => 'Disetujui',
             ]);
 
-            DB::commit();
+            $jenis = ($request->id_kategori_pengajuan == 2) ? "Cuti" : "Izin/Sakit";
+            $judul = "Pengajuan $jenis Disetujui";
+            
+            $pesanDetail = "Detail pengajuan Anda:\n\n"
+                         . "📝 Jenis: " . $jenis . "\n"
+                         . "📅 Tanggal: " . $tglMulai->format('d M Y') . " s/d " . $tglSelesai->format('d M Y') . "\n"
+                         . "⏳ Durasi: " . $durasi . " Hari\n"
+                         . "ℹ️ Alasan: " . $request->alasan . "\n";
 
-            \App\Models\MtNotifikasi::create([
+            if ($request->id_kategori_pengajuan == 2) {
+                $pesanDetail .= "📉 Sisa Jatah Cuti: " . $sisaCutiTersisa . " Hari\n";
+            }
+
+            $pesanDetail .= "\nStatus: Berhasil Disetujui";
+
+            MtNotifikasi::create([
                 'id_user' => $request->id_user,
-                'pesan' => 'Pengajuan berhasil dikirim ke admin',
+                'judul' => $judul,
+                'pesan' => $pesanDetail,
                 'status_baca' => 0
             ]);
 
-            $user = \App\Models\MtUser::find($request->id_user);
-
-            if ($user && $user->fcm_token) {
+            if ($user->fcm_token) {
                 $firebase = new FirebaseService();
                 $firebase->sendNotification(
                     $user->fcm_token,
-                    'Pengajuan Berhasil',
-                    'Pengajuan Anda berhasil dikirim ke admin'
+                    $judul,
+                    "Pengajuan $jenis Anda selama $durasi hari telah disetujui."
                 );
             }
 
+            DB::commit();
+
             return response()->json([
                 'success' => true, 
-                'message' => 'Pengajuan berhasil dan jatah cuti telah dipotong.',
-                'durasi' => $durasi
+                'message' => 'Pengajuan berhasil diproses.',
+                'durasi' => $durasi,
+                'sisa_cuti' => $sisaCutiTersisa
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'success' => false, 
-                'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function download($id)
+    {
+        $pengajuan = MtPengajuan::findOrFail($id);
+        
+        if (!$pengajuan->lampiran) {
+            return response()->json(['message' => 'Lampiran tidak tersedia'], 404);
+        }
+
+        $path = 'public/pengajuan/' . $pengajuan->lampiran;
+
+        if (!Storage::exists($path)) {
+            return response()->json(['message' => 'File fisik tidak ditemukan'], 404);
+        }
+
+        return Storage::download($path, $pengajuan->lampiran);
     }
 }

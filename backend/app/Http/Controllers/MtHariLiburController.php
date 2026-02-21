@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Services\FirebaseService;
 use App\Models\MtUser;
 use App\Models\MtNotifikasi;
+use Carbon\Carbon;
 
 class MtHariLiburController extends Controller {
     public function index() {
@@ -19,22 +20,27 @@ class MtHariLiburController extends Controller {
             'nama_libur' => 'required|string',
             'kategori_libur' => 'required'
         ]);
+
         MtHariLibur::create($validated);
         $users = MtUser::where('status_user', 1)->get();
         
         foreach ($users as $user) {
+            $judul = "Hari Libur Baru";
+            $pesan = "Pemberitahuan hari libur baru telah ditambahkan.\n\n"
+                . "🎉 Acara: " . $request->nama_libur . "\n"
+                . "📅 Tanggal: " . Carbon::parse($request->tanggal_libur)->format('d M Y') . "\n"
+                . "🏷️ Kategori: " . $request->kategori_libur . "\n\n"
+                . "Selamat beristirahat!";
+
             MtNotifikasi::create([
                 'id_user' => $user->id_user,
-                'pesan' => 'Hari libur baru telah ditambahkan: ' . $request->nama_libur,
+                'judul' => $judul,
+                'pesan' => $pesan,
                 'status_baca' => 0
             ]);
 
             if ($user->fcm_token) {
-                (new FirebaseService())->sendNotification(
-                    $user->fcm_token,
-                    'Hari Libur Baru',
-                    $request->nama_libur
-                );
+                (new FirebaseService())->sendNotification($user->fcm_token, $judul, "Libur: " . $request->nama_libur);
             }
         }
         return response()->json(['message' => 'Hari libur berhasil ditambahkan']);

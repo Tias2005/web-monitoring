@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\MtLokasiPresensi;
+use App\Models\MtUser;
+use App\Models\MtNotifikasi;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 
 class MtLokasiPresensiController extends Controller
 {
@@ -31,6 +34,9 @@ class MtLokasiPresensiController extends Controller
         ]);
 
         $lokasi = MtLokasiPresensi::first();
+        
+        $radiusLamaWfo = $lokasi ? $lokasi->radius_wfo : 0;
+        $alamatLama = $lokasi ? ($lokasi->alamat_kantor ?? 'Belum diatur') : 'Belum diatur';
 
         if (!$lokasi) {
             $lokasi = MtLokasiPresensi::create($request->all());
@@ -38,9 +44,36 @@ class MtLokasiPresensiController extends Controller
             $lokasi->update($request->all());
         }
 
+        $users = MtUser::where('status_user', 1)->get();
+        $firebaseService = new FirebaseService();
+
+        foreach ($users as $user) {
+            $judul = "Pembaruan Lokasi Presensi";
+            $pesan = "Admin telah memperbarui pengaturan lokasi & radius presensi.\n\n"
+                   . "📍 Alamat: " . ($request->alamat_kantor ?? 'Alamat Kantor') . "\n"
+                   . "⭕ Radius WFO: " . $request->radius_wfo . " Meter\n"
+                   . "🏠 Radius WFH: " . $request->radius_wfh . " Meter\n\n"
+                   . "Mohon pastikan GPS Anda akurat saat melakukan presensi di lokasi yang baru.";
+
+            MtNotifikasi::create([
+                'id_user' => $user->id_user,
+                'judul' => $judul,
+                'pesan' => $pesan,
+                'status_baca' => 0
+            ]);
+
+            if ($user->fcm_token) {
+                $firebaseService->sendNotification(
+                    $user->fcm_token,
+                    $judul,
+                    "Radius WFO sekarang: " . $request->radius_wfo . "m. Cek detail lokasinya!"
+                );
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Pengaturan lokasi presensi berhasil diperbarui',
+            'message' => 'Pengaturan lokasi presensi berhasil diperbarui dan notifikasi telah dikirim',
             'data'    => $lokasi
         ], 200);
     }
@@ -52,6 +85,7 @@ class MtLokasiPresensiController extends Controller
             'lng' => 'required|numeric'
         ]);
 
+        /** @var Response $response */
         $response = Http::withHeaders([
             'User-Agent' => 'com.presensi.example'
         ])->get('https://nominatim.openstreetmap.org/reverse', [
@@ -74,5 +108,4 @@ class MtLokasiPresensiController extends Controller
             'data'    => $response->json()
         ], 200);
     }
-
 }

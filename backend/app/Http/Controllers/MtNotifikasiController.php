@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\Response;
 use App\Models\MtUser;
 use App\Models\MtNotifikasi;
 use Google\Client;
@@ -47,47 +48,34 @@ class MtNotifikasiController extends Controller
         $token = $client->fetchAccessTokenWithAssertion();
         $accessToken = $token['access_token'];
 
-
         $projectId = env('FIREBASE_PROJECT_ID');
 
-        $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
-
-        $data = [
-            "message" => [
-                "token" => $fcmToken,
-                "notification" => [
-                    "title" => $title,
-                    "body" => $body
+        /** @var Response $response */
+        $response = Http::withToken($accessToken)
+            ->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
+                "message" => [
+                    "token" => $fcmToken,
+                    "notification" => [
+                        "title" => $title,
+                        "body" => $body
+                    ]
                 ]
-            ]
-        ];
+            ]);
 
-        $headers = [
-            "Authorization: Bearer {$accessToken}",
-            "Content-Type: application/json"
-        ];
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        $response = Http::withToken($accessToken) ->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [ "message" => [ "token" => $fcmToken, "notification" => [ "title" => $title, "body" => $body ] ] ]);
-
-        return $response;
+        return $response->json();
     }
 
     public function testNotif($id)
     {
         $user = MtUser::find($id);
 
-        $this->sendFcmNotification(
+        $result = $this->sendFcmNotification(
             $user->fcm_token,
             "Reminder Presensi",
             "Jangan lupa presensi hari ini ya!"
         );
 
-        return response()->json(["message" => "Notif terkirim"]);
+        dd($result);
     }
+
 }

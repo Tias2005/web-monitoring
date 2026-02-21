@@ -11,6 +11,7 @@ class MtNotifikasi extends Model
 
     protected $fillable = [
         'id_user',
+        'judul',
         'pesan',
         'status_baca', // 0: belum, 1: sudah
     ];
