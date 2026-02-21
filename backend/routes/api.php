@@ -41,6 +41,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
 Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);
 Route::get('/user-stats/{id_user}', [DashboardController::class, 'getUserStats']);
 

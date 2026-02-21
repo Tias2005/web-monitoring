@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Models\MtUser;
+use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -227,6 +229,81 @@ class AuthController extends Controller
         $user->save();
 
         return response()->json(['message' => 'Token tersimpan']);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email_user' => 'required|email']);
+        $user = MtUser::where('email_user', $request->email_user)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Email tidak terdaftar'], 404);
+        }
+
+        $otp = rand(100000, 999999);
+
+        DB::table('password_reset_otps')->where('email', $request->email_user)->delete();
+        DB::table('password_reset_otps')->insert([
+            'email' => $request->email_user,
+            'otp' => $otp, 
+            'created_at' => Carbon::now()
+        ]);
+
+        try {
+            Mail::raw("Kode OTP Anda untuk reset password adalah: $otp. Kode ini berlaku selama 15 menit.", function ($message) use ($user) {
+                $message->to($user->email_user)
+                        ->subject('Reset Password OTP - Monitoring Admin');
+            });
+            return response()->json(['message' => 'Kode OTP telah dikirim ke email Anda.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal mengirim email: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email_user' => 'required|email',
+            'otp' => 'required|numeric'
+        ]);
+
+        $reset = DB::table('password_reset_otps')
+            ->where('email', $request->email_user)
+            ->where('otp', $request->otp)
+            ->where('created_at', '>', Carbon::now()->subMinutes(15))
+            ->first();
+
+        if (!$reset) {
+            return response()->json(['message' => 'Kode OTP salah atau sudah kedaluwarsa'], 422);
+        }
+
+        return response()->json(['message' => 'OTP valid, silakan reset password Anda.']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email_user' => 'required|email',
+            'otp' => 'required',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $check = DB::table('password_reset_otps')
+            ->where('email', $request->email_user)
+            ->where('otp', $request->otp)
+            ->first();
+
+        if (!$check) {
+            return response()->json(['message' => 'Permintaan tidak valid'], 400);
+        }
+
+        $user = MtUser::where('email_user', $request->email_user)->first();
+        $user->password_user = Hash::make($request->password);
+        $user->save();
+
+        DB::table('password_reset_otps')->where('email', $request->email_user)->delete();
+
+        return response()->json(['message' => 'Password berhasil diubah. Silakan login kembali.']);
     }
 
 }
