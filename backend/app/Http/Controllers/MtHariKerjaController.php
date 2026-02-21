@@ -29,7 +29,7 @@ class MtHariKerjaController extends Controller {
         ];
 
         $hariNama = $namaHari[$hari->hari_ke] ?? 'Hari tertentu';
-        $statusBaru = $request->is_hari_kerja ? 'HARI KERJA' : 'HARI LIBUR (OFF)';
+        $statusBaru = $request->is_hari_kerja ? 'HARI KERJA' : 'HARI LIBUR';
 
         $hari->update(['is_hari_kerja' => $request->is_hari_kerja]);
 

@@ -62,7 +62,7 @@ class   MtJatahCutiController extends Controller
                     . "📝 Jatah Sebelumnya: " . $totalLama . " hari\n"
                     . "✅ Jatah Baru: " . $jatahBaru . " hari\n"
                     . "💡 Sisa Jatah Anda: " . $jatahKaryawan->sisa . " hari\n\n"
-                    . "Silahkan hubungi HRD jika ada ketidaksesuaian.";
+                    . "Silahkan hubungi Administrator jika ada ketidaksesuaian.";
 
                 MtNotifikasi::create([
                     'id_user' => $user->id_user,

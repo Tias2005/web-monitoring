@@ -56,6 +56,12 @@ class MtPengajuanController extends Controller
             return response()->json(['message' => 'User tidak ditemukan'], 404);
         }
 
+        $kategori = DB::table('mt_kategori_pengajuan')
+            ->where('id_kategori_pengajuan', $request->id_kategori_pengajuan)
+            ->first();
+            
+        $namaKategori = $kategori ? $kategori->nama_pengajuan : "Pengajuan";
+
         $tglMulai = Carbon::parse($request->tanggal_mulai);
         $tglSelesai = Carbon::parse($request->tanggal_selesai ?? $request->tanggal_mulai);
         $durasi = $tglMulai->diffInDays($tglSelesai) + 1;
@@ -106,14 +112,19 @@ class MtPengajuanController extends Controller
                 'status_pengajuan' => 'Disetujui',
             ]);
 
-            $jenis = ($request->id_kategori_pengajuan == 2) ? "Cuti" : "Izin/Sakit";
-            $judul = "Pengajuan $jenis Disetujui";
+            $judul = "Pengajuan $namaKategori Disetujui";
             
             $pesanDetail = "Detail pengajuan Anda:\n\n"
-                         . "📝 Jenis: " . $jenis . "\n"
-                         . "📅 Tanggal: " . $tglMulai->format('d M Y') . " s/d " . $tglSelesai->format('d M Y') . "\n"
-                         . "⏳ Durasi: " . $durasi . " Hari\n"
-                         . "ℹ️ Alasan: " . $request->alasan . "\n";
+                         . "📝 Jenis: " . $namaKategori . "\n"
+                         . "📅 Tanggal: " . $tglMulai->format('d M Y') . " s/d " . $tglSelesai->format('d M Y') . "\n";
+
+            if ($request->id_kategori_pengajuan == 3) {
+                $pesanDetail .= "⌚ Jam: " . ($request->jam_mulai ?? '-') . " s/d " . ($request->jam_selesai ?? '-') . "\n";
+            } else {
+                $pesanDetail .= "⏳ Durasi: " . $durasi . " Hari\n";
+            }
+
+            $pesanDetail .= "ℹ️ Alasan: " . $request->alasan . "\n";
 
             if ($request->id_kategori_pengajuan == 2) {
                 $pesanDetail .= "📉 Sisa Jatah Cuti: " . $sisaCutiTersisa . " Hari\n";
@@ -129,22 +140,15 @@ class MtPengajuanController extends Controller
             ]);
 
             if ($user->fcm_token) {
-                $firebase = new FirebaseService();
-                $firebase->sendNotification(
+                (new FirebaseService())->sendNotification(
                     $user->fcm_token,
                     $judul,
-                    "Pengajuan $jenis Anda selama $durasi hari telah disetujui."
+                    "Pengajuan $namaKategori Anda telah disetujui."
                 );
             }
 
             DB::commit();
-
-            return response()->json([
-                'success' => true, 
-                'message' => 'Pengajuan berhasil diproses.',
-                'durasi' => $durasi,
-                'sisa_cuti' => $sisaCutiTersisa
-            ]);
+            return response()->json(['success' => true, 'message' => 'Berhasil']);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -163,12 +167,15 @@ class MtPengajuanController extends Controller
             return response()->json(['message' => 'Lampiran tidak tersedia'], 404);
         }
 
-        $path = 'public/pengajuan/' . $pengajuan->lampiran;
+        $exists = Storage::disk('public')->exists('pengajuan/' . $pengajuan->lampiran);
 
-        if (!Storage::exists($path)) {
-            return response()->json(['message' => 'File fisik tidak ditemukan'], 404);
+        if (!$exists) {
+            return response()->json([
+                'message' => 'File fisik tidak ditemukan',
+                'debug_path' => storage_path('app/public/pengajuan/' . $pengajuan->lampiran)
+            ], 404);
         }
 
-        return Storage::download($path, $pengajuan->lampiran);
+        return response()->download(storage_path('app/public/pengajuan/' . $pengajuan->lampiran));
     }
 }
