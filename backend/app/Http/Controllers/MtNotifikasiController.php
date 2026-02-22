@@ -78,4 +78,23 @@ class MtNotifikasiController extends Controller
         dd($result);
     }
 
+    public function delete($id)
+    {
+        $notif = MtNotifikasi::find($id);
+
+        if (!$notif) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Notifikasi tidak ditemukan'
+            ], 404);
+        }
+
+        $notif->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Notifikasi berhasil dihapus'
+        ]);
+    }
+
 }

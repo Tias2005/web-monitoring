@@ -17,6 +17,7 @@ use App\Http\Controllers\MtHariLiburController;
 use App\Http\Controllers\MtNotifikasiController;
 use App\Http\Controllers\MtJatahCutiController;
 use App\Http\Controllers\MtLokasiPresensiController;
+use App\Http\Controllers\RiwayatController;
 
 Route::options('{any}', function (Request $request) {
     return response()->json([], 200)
@@ -38,7 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/notifications/read/{id}', [MtNotifikasiController::class, 'markAsRead']);
     Route::get('/notifications/unread-count/{id_user}', [MtNotifikasiController::class, 'getUnreadCount']);
     Route::get('/test-notif/{id}', [MtNotifikasiController::class, 'testNotif']);
-
+    Route::delete('/notifications/{id}', [MtNotifikasiController::class, 'delete']);
 });
 
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
@@ -76,6 +77,7 @@ Route::prefix('pengajuan')->group(function () {
 
 Route::get('/laporan', [LaporanController::class, 'index']);
 Route::get('/laporan/export', [LaporanController::class, 'exportExcel']);
+Route::get('/export-riwayat-user', [LaporanController::class, 'exportExcel']);
 
 Route::get('/jam-kerja', [MtJamKerjaController::class, 'index']);
 Route::put('/jam-kerja/{id}', [MtJamKerjaController::class, 'update']);
@@ -101,3 +103,5 @@ Route::get('/lokasi-presensi', [MtLokasiPresensiController::class, 'index']);
 Route::post('/lokasi-presensi/update', [MtLokasiPresensiController::class, 'update']);
 Route::post('/lokasi-presensi/reverse', [MtLokasiPresensiController::class, 'reverseGeocode']);
 Route::post('/lokasi-presensi/search', [MtLokasiPresensiController::class, 'searchLocation']);
+
+Route::get('/riwayat-user', [RiwayatController::class, 'getRiwayatUser']);
