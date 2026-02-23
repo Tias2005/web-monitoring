@@ -7,6 +7,10 @@ use App\Models\MtPresensi;
 use App\Models\MtPengajuan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Exports\RiwayatUserExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Laravel\Sanctum\PersonalAccessToken;
+use App\Models\MtUser;
 
 class RiwayatController extends Controller
 {
@@ -62,5 +66,30 @@ class RiwayatController extends Controller
             ],
             'riwayat_harian' => $listPresensi
         ]);
+    }
+
+    public function exportRiwayatUser(Request $request)
+    {
+        $tokenString = $request->query('token');
+
+        if (!$tokenString) {
+            return response()->json(['error' => 'Token tidak ada'], 401);
+        }
+
+        $accessToken = PersonalAccessToken::findToken($tokenString);
+
+        if (!$accessToken) {
+            return response()->json(['error' => 'Token tidak valid'], 401);
+        }
+
+        $user = $accessToken->tokenable;
+
+        $bulan = $request->bulan ?? date('m');
+        $tahun = date('Y');
+
+        return Excel::download(
+            new RiwayatUserExport($user->id_user, $bulan, $tahun),
+            'riwayat_presensi.xlsx'
+        );
     }
 }

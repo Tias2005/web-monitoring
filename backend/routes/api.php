@@ -40,6 +40,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications/unread-count/{id_user}', [MtNotifikasiController::class, 'getUnreadCount']);
     Route::get('/test-notif/{id}', [MtNotifikasiController::class, 'testNotif']);
     Route::delete('/notifications/{id}', [MtNotifikasiController::class, 'delete']);
+
+    Route::get('/riwayat-user', [RiwayatController::class, 'getRiwayatUser']);
+    Route::get('/export-riwayat-user', [LaporanController::class, 'exportExcel']); 
 });
 
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
@@ -77,7 +80,6 @@ Route::prefix('pengajuan')->group(function () {
 
 Route::get('/laporan', [LaporanController::class, 'index']);
 Route::get('/laporan/export', [LaporanController::class, 'exportExcel']);
-Route::get('/export-riwayat-user', [LaporanController::class, 'exportExcel']);
 
 Route::get('/jam-kerja', [MtJamKerjaController::class, 'index']);
 Route::put('/jam-kerja/{id}', [MtJamKerjaController::class, 'update']);
@@ -104,4 +106,4 @@ Route::post('/lokasi-presensi/update', [MtLokasiPresensiController::class, 'upda
 Route::post('/lokasi-presensi/reverse', [MtLokasiPresensiController::class, 'reverseGeocode']);
 Route::post('/lokasi-presensi/search', [MtLokasiPresensiController::class, 'searchLocation']);
 
-Route::get('/riwayat-user', [RiwayatController::class, 'getRiwayatUser']);
+Route::get('/export-riwayat-mobile', [RiwayatController::class, 'exportRiwayatUser']);
