@@ -59,6 +59,26 @@ class MtPresensiController extends Controller
             ]);
         }
 
+        $pengajuan = \App\Models\MtPengajuan::with('kategori')
+            ->where('id_user', $id_user)
+            ->where('status_pengajuan', 'Disetujui')
+            ->whereDate('tanggal_mulai', '<=', $today)
+            ->whereDate('tanggal_selesai', '>=', $today)
+            ->first();
+
+        if ($pengajuan) {
+
+            $namaKategori = $pengajuan->kategori->nama_pengajuan 
+                ?? $pengajuan->kategori->nama_kategori 
+                ?? 'Pengajuan';
+
+            return response()->json([
+                'status' => 'leave',
+                'message' => "Hari ini Anda sedang $namaKategori",
+                'data' => null
+            ]);
+        }
+
         $jamKerja = \App\Models\MtJamKerja::where('is_active', true)->first();
 
         $presensi = MtPresensi::where('id_user', $id_user)

@@ -14,7 +14,7 @@ class MtPengajuan extends Model
 
     protected $fillable = [
         'id_user', 'id_kategori_pengajuan', 'tanggal_mulai', 'tanggal_selesai',
-        'jam_mulai', 'jam_selesai', 'alasan', 'lampiran'
+        'jam_mulai', 'jam_selesai', 'alasan', 'lampiran', 'status_pengajuan'
     ];
 
     public function user()
