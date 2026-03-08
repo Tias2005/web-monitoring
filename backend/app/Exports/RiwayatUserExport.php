@@ -4,88 +4,88 @@ namespace App\Exports;
 
 use App\Models\MtPresensi;
 use App\Models\MtPengajuan;
-use App\Models\MtUser;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class RiwayatUserExport implements FromArray, WithHeadings
 {
-    protected $id_user, $bulan, $tahun;
+    protected $id_user;
 
-    public function __construct($id_user, $bulan, $tahun)
+    public function __construct($id_user)
     {
         $this->id_user = $id_user;
-        $this->bulan = $bulan;
-        $this->tahun = $tahun;
     }
 
     public function array(): array
     {
-        $user = MtUser::find($this->id_user);
+        $rows = [];
 
-        $presensi = MtPresensi::where('id_user', $this->id_user)
-            ->whereMonth('tanggal', $this->bulan)
-            ->whereYear('tanggal', $this->tahun)
-            ->get();
+        $presensi = MtPresensi::with([
+            'kategoriKerja',
+            'statusPresensi'
+        ])
+        ->where('id_user', $this->id_user)
+        ->get();
 
-        $pengajuan = MtPengajuan::where('id_user', $this->id_user)
-            ->where(function ($q) {
-                $q->whereMonth('tanggal_mulai', $this->bulan)
-                  ->whereYear('tanggal_mulai', $this->tahun)
-                  ->orWhereMonth('tanggal_selesai', $this->bulan)
-                  ->whereYear('tanggal_selesai', $this->tahun);
-            })
-            ->with('kategori')
-            ->get();
+        foreach ($presensi as $p) {
 
-        $totalIzin = 0;
-        $totalCuti = 0;
-        $totalLemburMenit = 0;
-
-        foreach ($pengajuan as $p) {
-            $nama_kat = strtolower($p->kategori->nama_pengajuan ?? '');
-            $mulai = Carbon::parse($p->tanggal_mulai);
-            $selesai = Carbon::parse($p->tanggal_selesai);
-            $durasiHari = $mulai->diffInDays($selesai) + 1;
-
-            if (str_contains($nama_kat, 'izin')) {
-                $totalIzin += $durasiHari;
-            } elseif (str_contains($nama_kat, 'cuti')) {
-                $totalCuti += $durasiHari;
-            } elseif (str_contains($nama_kat, 'lembur')) {
-                if ($p->jam_mulai && $p->jam_selesai) {
-                    $totalLemburMenit += Carbon::parse($p->jam_mulai)
-                        ->diffInMinutes(Carbon::parse($p->jam_selesai));
-                }
-            }
+        $rows[] = [
+            Carbon::parse($p->tanggal)->format('Y-m-d'),
+            'Presensi',
+            $p->kategoriKerja->nama_kategori_kerja ?? '-',
+            $p->jam_masuk,
+            $p->jam_pulang,
+            '-',
+            '-',
+            $p->statusPresensi->nama_status_presensi ?? '-',
+            $p->lokasi_masuk ?? '-',
+            $p->lokasi_pulang ?? '-',
+            '',
+        ];
         }
 
-        return [[
-            $user->nama_user,
-            $presensi->count(),
-            $presensi->where('id_status_presensi', 2)->count(),
-            $totalIzin,
-            $totalCuti,
-            round($totalLemburMenit / 60),
-            $presensi->where('id_kategori_kerja', 1)->count(),
-            $presensi->where('id_kategori_kerja', 2)->count(),
-            $presensi->where('id_kategori_kerja', 3)->count(),
-        ]];
+        $pengajuan = MtPengajuan::with('kategori')
+            ->where('id_user', $this->id_user)
+            ->get();
+
+        foreach ($pengajuan as $p) {
+
+        $rows[] = [
+            Carbon::parse($p->tanggal_mulai)->format('Y-m-d'),
+            'Pengajuan',
+            $p->kategori->nama_pengajuan ?? '-',
+            '-',
+            '-',
+            $p->jam_mulai,
+            $p->jam_selesai,
+            $p->status_pengajuan,
+            '-',
+            $p->alasan,
+        ];
+        }
+
+        usort($rows, function ($a, $b) {
+            return strtotime($b[0]) - strtotime($a[0]);
+        });
+
+        return $rows;
     }
 
     public function headings(): array
     {
         return [
-            'Nama',
-            'Hadir / Hari',
-            'Terlambat / Hari',
-            'Izin / Hari',
-            'Cuti / Hari',
-            'Lembur / Jam',
-            'WFO / Hari',
-            'WFH / Hari',
-            'WFA / Hari',
+            'Tanggal',
+            'Tipe',
+            'Kategori',
+            'Jam Masuk',
+            'Jam Pulang',
+            'Jam Mulai',
+            'Jam Selesai',
+            'Status',
+            'Lokasi Masuk',
+            'Lokasi Pulang',
+            'Keterangan',
         ];
     }
 }
