@@ -50,4 +50,26 @@ class MtHariLiburController extends Controller {
         MtHariLibur::destroy($id);
         return response()->json(['message' => 'Hari libur berhasil dihapus']);
     }
+
+    public function import(Request $request)
+    {
+        $holidays = $request->holidays;
+
+        foreach ($holidays as $h) {
+
+            MtHariLibur::updateOrCreate(
+                [
+                    'tanggal_libur' => Carbon::parse($h['date'])->format('Y-m-d')
+                ],
+                [
+                    'nama_libur' => $h['name'],
+                    'kategori_libur' => $h['type'] ?? 'Nasional'
+                ]
+            );
+        }
+
+        return response()->json([
+            'message' => 'Holiday berhasil diimport'
+        ]);
+    }
 }

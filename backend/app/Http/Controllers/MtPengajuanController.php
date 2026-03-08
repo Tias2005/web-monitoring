@@ -15,10 +15,16 @@ use Carbon\Carbon;
 
 class MtPengajuanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = MtPengajuan::with(['user', 'kategori'])->orderBy('create_at', 'desc')->get();
-        
+        $tanggal = $request->tanggal ?? Carbon::today()->toDateString();
+
+        $data = MtPengajuan::with(['user', 'kategori'])
+            ->whereDate('tanggal_mulai', '<=', $tanggal)
+            ->whereDate('tanggal_selesai', '>=', $tanggal)
+            ->orderBy('create_at', 'desc')
+            ->get();
+
         return response()->json([
             'success' => true,
             'message' => 'Daftar Pengajuan Karyawan',

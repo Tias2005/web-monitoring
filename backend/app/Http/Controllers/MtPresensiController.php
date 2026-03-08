@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Storage;
 
 class MtPresensiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $today = Carbon::today()->toDateString();
+        $tanggal = $request->tanggal ?? Carbon::today()->toDateString();
 
         $presensi = MtPresensi::with(['user.jabatan', 'user.divisi', 'statusPresensi', 'kategoriKerja'])
-                ->whereDate('tanggal', $today)
+                ->whereDate('tanggal', $tanggal)
                 ->get();
 
         $stats = [
@@ -198,9 +198,9 @@ class MtPresensiController extends Controller
                 'tanggal' => $today,
                 'jam_masuk' => $currentTime,
                 'id_status_presensi' => $idStatus,
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-                'lokasi' => $request->lokasi,
+                'latitude_masuk' => $request->latitude,
+                'longitude_masuk' => $request->longitude,
+                'lokasi_masuk' => $request->lokasi,
                 'id_kategori_kerja' => $request->id_kategori_kerja,
                 'foto_masuk' => $path,
             ]);
@@ -228,10 +228,49 @@ class MtPresensiController extends Controller
 
             $statusFinal = $presensi->id_status_presensi;
 
-            $presensi->update([
-                'jam_pulang' => $currentTime,
-                'foto_pulang' => $path,
-                'id_status_presensi' => $statusFinal 
+            $mode = $presensi->id_kategori_kerja;
+
+            $lat = $request->latitude;
+            $lon = $request->longitude;
+
+            if ($mode == 1) { // WFO
+                $jarak = $this->calculateDistance(
+                    $lat,
+                    $lon,
+                    $configLokasi->latitude_kantor,
+                    $configLokasi->longitude_kantor
+                );
+
+                if ($jarak > $configLokasi->radius_wfo) {
+                    return response()->json([
+                        'message' => "Checkout harus di area kantor"
+                    ], 422);
+                }
+
+            } elseif ($mode == 2) { // WFH
+                $jarak = $this->calculateDistance(
+                    $lat,
+                    $lon,
+                    $user->latitude_rumah,
+                    $user->longitude_rumah
+                );
+
+                if ($jarak > $configLokasi->radius_wfh) {
+                    return response()->json([
+                        'message' => "Checkout harus di area rumah"
+                    ], 422);
+                }
+            }
+
+            $presensi->update([ // WFA
+            'jam_pulang' => $currentTime,
+
+            'latitude_pulang' => $request->latitude,
+            'longitude_pulang' => $request->longitude,
+            'lokasi_pulang' => $request->lokasi,
+
+            'foto_pulang' => $path,
+            'id_status_presensi' => $statusFinal
             ]);
 
             return response()->json([

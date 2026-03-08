@@ -12,19 +12,27 @@ class MtPresensi extends Model
     protected $table = 'mt_presensi';
     protected $primaryKey = 'id_presensi';
     protected $fillable = [
-        'id_user', 
-        'tanggal', 
-        'jam_masuk', 
-        'jam_pulang', 
-        'id_status_presensi', 
-        'latitude', 
-        'longitude', 
-        'lokasi', 
+        'id_user',
+        'tanggal',
+        'jam_masuk',
+        'jam_pulang',
+        'id_status_presensi',
+
+        'latitude_masuk',
+        'longitude_masuk',
+        'lokasi_masuk',
+
+        'latitude_pulang',
+        'longitude_pulang',
+        'lokasi_pulang',
+
         'id_kategori_kerja',
-        'foto_masuk', 
+        'foto_masuk',
         'foto_pulang',
+        
         'created_at',
-        'updated_at'
+        'updated_at',
+        ''        
     ];
 
     public function user()

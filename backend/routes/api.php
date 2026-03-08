@@ -107,3 +107,5 @@ Route::post('/lokasi-presensi/reverse', [MtLokasiPresensiController::class, 'rev
 Route::post('/lokasi-presensi/search', [MtLokasiPresensiController::class, 'searchLocation']);
 
 Route::get('/export-riwayat-mobile', [RiwayatController::class, 'exportRiwayatUser']);
+
+Route::post('/hari-libur/import', [MtHariLiburController::class, 'import']);

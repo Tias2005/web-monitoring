@@ -23,16 +23,25 @@ class RiwayatController extends Controller
         $listPresensi = MtPresensi::where('id_user', $id_user)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->with(['statusPresensi', 'kategoriKerja'])
+            ->with([
+                'user.divisi',
+                'user.jabatan',
+                'statusPresensi',
+                'kategoriKerja'
+            ])
             ->orderBy('tanggal', 'desc')
             ->get();
 
         $pengajuan = MtPengajuan::where('id_user', $id_user)
             ->where(function($q) use ($bulan, $tahun) {
                 $q->whereMonth('tanggal_mulai', $bulan)->whereYear('tanggal_mulai', $tahun)
-                  ->orWhereMonth('tanggal_selesai', $bulan)->whereYear('tanggal_selesai', $tahun);
+                ->orWhereMonth('tanggal_selesai', $bulan)->whereYear('tanggal_selesai', $tahun);
             })
-            ->with('kategori')
+            ->with([
+                'kategori',
+                'user.divisi',
+                'user.jabatan'
+            ])
             ->get();
 
         $totalIzin = 0; $totalCuti = 0; $totalLemburMenit = 0;
@@ -64,7 +73,8 @@ class RiwayatController extends Controller
                 'wfh'       => $listPresensi->where('id_kategori_kerja', 2)->count(),
                 'wfa'       => $listPresensi->where('id_kategori_kerja', 3)->count(),
             ],
-            'riwayat_harian' => $listPresensi
+            'riwayat_harian' => $listPresensi,
+            'riwayat_pengajuan' => $pengajuan
         ]);
     }
 
