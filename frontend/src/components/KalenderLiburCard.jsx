@@ -1,16 +1,46 @@
 import React from 'react';
 import Calendar from 'react-calendar';
+import Holidays from "date-holidays";
+import { useEffect } from "react";
+import api from "../lib/api";
 
-const KalenderLiburCard = ({ onDateClick, tileClassName, hariLibur }) => {
+const hd = new Holidays("ID");
+const holidays = hd.getHolidays(new Date().getFullYear());
+
+const holidayDates = holidays.map(h => new Date(h.date).toDateString());
+
+const tileClassName = ({ date, view }) => {
+  if (view === 'month') {
+    const isHoliday = holidayDates.includes(date.toDateString());
+    if (isHoliday) return 'holiday';
+  }
+};
+
+const KalenderLiburCard = ({ onDateClick, hariLibur }) => {
+
+  useEffect(() => {
+
+    api.post("/hari-libur/import", {
+      holidays: holidays
+    })
+    .then(res => {
+      console.log("Holiday imported", res.data);
+    })
+    .catch(err => {
+      console.error("Import holiday error", err);
+    });
+
+  }, []);
+
   return (
     <div className="schedule-card">
       <h3>Kalender & Hari Libur</h3>
       <div className="calendar-container">
-        <Calendar 
-          onClickDay={onDateClick}
-          tileClassName={tileClassName}
-          locale="id-ID"
-        />
+      <Calendar 
+        onClickDay={onDateClick}
+        tileClassName={tileClassName}
+        locale="id-ID"
+      />
         
         <div className="calendar-legend">
           <div className="legend-item">

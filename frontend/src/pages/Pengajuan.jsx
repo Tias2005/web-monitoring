@@ -11,28 +11,29 @@ const Pengajuan = () => {
   const [listPengajuan, setListPengajuan] = useState([]);
   const [selectedPengajuan, setSelectedPengajuan] = useState(null);
   const [stats, setStats] = useState({ total_izin: 0, total_cuti: 0, total_lembur: 0 });
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
 
   useEffect(() => {
     fetchPengajuan();
-  }, []);
+  }, [selectedDate]);
 
   const fetchPengajuan = async () => {
     try {
-      const response = await api.get("/pengajuan");
+      const response = await api.get(`/pengajuan?tanggal=${selectedDate}`);
       if (response.data.success) {
         const allData = response.data.data;
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const selected = new Date(selectedDate);
+        selected.setHours(0, 0, 0, 0);
 
         const filteredToday = allData.filter(item => {
           const startDate = new Date(item.tanggal_mulai);
           const endDate = new Date(item.tanggal_selesai);
-          
+
           startDate.setHours(0, 0, 0, 0);
           endDate.setHours(0, 0, 0, 0);
 
-          return today >= startDate && today <= endDate;
+          return selected >= startDate && selected <= endDate;
         });
 
         setListPengajuan(filteredToday);
@@ -78,13 +79,47 @@ const Pengajuan = () => {
             </div>
           </div>
 
+          <div style={{ 
+            background: "white", 
+            padding: "15px 20px", 
+            borderRadius: "12px", 
+            boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+            display: "flex",
+            alignItems: "center",
+            gap: "15px",
+            marginTop: "20px",
+            marginBottom: "20px",
+            border: "1px solid #eee"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "18px" }}>📅</span>
+              <label style={{ fontSize: "14px", fontWeight: "600", color: "#555" }}>
+                Pilih Tanggal Data:
+              </label>
+            </div>
+
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              style={{
+                padding: "8px 12px",
+                borderRadius: "8px",
+                border: "1px solid #ddd",
+                outline: "none",
+                fontSize: "14px",
+                color: "#default",
+                cursor: "pointer"
+              }}
+            />
+          </div>
+
           <div className="main-content-presensi">
             <PengajuanList 
               data={listPengajuan} 
               selectedId={selectedPengajuan?.id_pengajuan} 
               onSelect={setSelectedPengajuan} 
             />
-
             <PengajuanDetail 
               detail={selectedPengajuan} 
               onDownload={handleDownload} 

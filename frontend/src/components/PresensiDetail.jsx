@@ -53,7 +53,8 @@ const PresensiDetail = ({ detail }) => {
         <div className="detail-row"><span>Jabatan</span><strong>{detail.user?.jabatan?.nama_jabatan}</strong></div>
         <div className="detail-row"><span>Waktu Masuk</span><strong>{detail.jam_masuk || "-"}</strong></div>
         <div className="detail-row"><span>Waktu Pulang</span><strong>{detail.jam_pulang || "-"}</strong></div>
-        <div className="detail-row"><span>Lokasi</span><strong>{detail.lokasi}</strong></div>
+        <div className="detail-row"><span>Lokasi Masuk</span><strong>{detail.lokasi_masuk || "-"}</strong></div>  
+        <div className="detail-row"><span>Lokasi Pulang</span><strong>{detail.lokasi_pulang || "-"}</strong></div>
         <div className="detail-row"><span>Kategori</span><strong>{detail.kategori_kerja?.nama_kategori_kerja || (detail.id_kategori_kerja === 1 ? 'WFO' : 'WFA')}</strong></div>
         <div className="detail-row"><span>Status</span><strong className={detail.id_status_presensi === 1 ? 'text-green' : 'text-red'}>{detail.status_presensi?.nama_status_presensi || (detail.id_status_presensi === 1 ? 'Tepat Waktu' : 'Terlambat')}</strong></div>              
       </div>

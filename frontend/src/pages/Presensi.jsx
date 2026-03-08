@@ -10,14 +10,15 @@ const Presensi = () => {
   const [dataPresensi, setDataPresensi] = useState([]);
   const [stats, setStats] = useState({});
   const [selectedDetail, setSelectedDetail] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
 
   useEffect(() => {
     fetchPresensi();
-  }, []);
+  }, [selectedDate]);
 
   const fetchPresensi = async () => {
     try {
-      const res = await api.get("/presensi");
+      const res = await api.get(`/presensi?tanggal=${selectedDate}`);
       setDataPresensi(res.data.data);
       setStats(res.data.stats);
     } catch (err) {
@@ -39,7 +40,7 @@ const Presensi = () => {
           <div className="stat-card">
             <h3>{stats.terlambat || 0}</h3>
             <p>Terlambat</p>
-            </div>
+          </div>
           <div className="stat-card">
             <h3>{stats.wfo || 0}</h3>
             <p>Total WFO</p>
@@ -54,13 +55,49 @@ const Presensi = () => {
           </div>
         </div>
 
+        <div style={{ 
+          background: "#fff", 
+          padding: "15px 20px", 
+          borderRadius: "12px", 
+          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+          display: "flex",
+          alignItems: "center",
+          gap: "15px",
+          marginBottom: "20px",
+          border: "1px solid #eee"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "18px" }}>📅</span>
+            <label style={{ fontSize: "14px", fontWeight: "600", color: "#555" }}>
+              Filter Tanggal:
+            </label>
+          </div>
+
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            style={{
+              padding: "8px 12px",
+              borderRadius: "8px",
+              border: "1px solid #ddd",
+              outline: "none",
+              fontSize: "14px",
+              color: "#default",
+              cursor: "pointer",
+              transition: "border-color 0.2s"
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#007bff"}
+            onBlur={(e) => e.target.style.borderColor = "#ddd"}
+          />
+        </div>
+
         <div className="main-content-presensi">
           <PresensiList 
             data={dataPresensi} 
             selectedId={selectedDetail?.id_presensi} 
             onSelect={setSelectedDetail} 
           />
-
           <PresensiDetail detail={selectedDetail} />
         </div>
       </div>
