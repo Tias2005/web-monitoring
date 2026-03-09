@@ -27,7 +27,9 @@ class SendPresensiReminder extends Command
             return;
         }
 
-        $users = MtUser::where('status_user', 1)->get();
+        $users = MtUser::where('status_user', 1)
+            ->whereNotNull('fcm_token')
+            ->get();
 
         foreach ($users as $user) {
 

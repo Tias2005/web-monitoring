@@ -13,6 +13,17 @@ class MtNotifikasiController extends Controller
 {
     public function getByUser($id_user)
     {
+        $user = MtUser::where('id_user', $id_user)
+            ->where('status_user', 1)
+            ->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User tidak aktif'
+            ], 403);
+        }
+
         $notifications = MtNotifikasi::where('id_user', $id_user)
             ->orderBy('created_at', 'desc')
             ->get();
