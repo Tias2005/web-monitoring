@@ -17,9 +17,8 @@ class SendPresensiReminder extends Command
 
     public function handle()
     {
-        $now = Carbon::now();
+        $now = Carbon::now('Asia/Jakarta');
         $today = $now->toDateString();
-        $currentTime = $now->format('H:i');
 
         $jamKerja = MtJamKerja::first();
 
@@ -40,43 +39,58 @@ class SendPresensiReminder extends Command
             $mulaiMasuk = Carbon::parse($jamKerja->mulai_absen_masuk);
             $akhirMasuk = Carbon::parse($jamKerja->akhir_absen_masuk);
 
-            if ($currentTime == $mulaiMasuk->format('H:i') && !$presensi) {
-                $this->kirimNotif($user, "Waktu check-in telah dimulai");
-            }
+            if (!$presensi) {
 
-            if ($currentTime == $akhirMasuk->copy()->subMinutes(10)->format('H:i') && !$presensi) {
-                $this->kirimNotif($user, "10 menit lagi batas check-in berakhir");
-            }
+                if ($now->between($mulaiMasuk, $mulaiMasuk->copy()->addMinute())) {
+                    $this->kirimNotif($user, "Waktu check-in telah dimulai");
+                }
 
-            if ($currentTime == $akhirMasuk->format('H:i') && !$presensi) {
-                $this->kirimNotif($user, "Anda terlambat! Segera lakukan check-in.");
+                if ($now->between(
+                    $akhirMasuk->copy()->subMinutes(10),
+                    $akhirMasuk->copy()->subMinutes(9)
+                )) {
+                    $this->kirimNotif($user, "10 menit lagi batas check-in berakhir");
+                }
+
+                if ($now->between($akhirMasuk, $akhirMasuk->copy()->addMinute())) {
+                    $this->kirimNotif($user, "Anda terlambat! Segera lakukan check-in.");
+                }
             }
 
             $mulaiPulang = Carbon::parse($jamKerja->mulai_absen_pulang);
             $akhirPulang = Carbon::parse($jamKerja->akhir_absen_pulang);
 
-            if ($currentTime == $mulaiPulang->format('H:i') 
-                && $presensi && !$presensi->jam_pulang) {
+            if ($presensi && !$presensi->jam_pulang) {
 
-                $this->kirimNotif($user, "Waktu check-out telah dimulai");
-            }
+                if ($now->between($mulaiPulang, $mulaiPulang->copy()->addMinute())) {
+                    $this->kirimNotif($user, "Waktu check-out telah dimulai");
+                }
 
-            if ($currentTime == $akhirPulang->copy()->subMinutes(10)->format('H:i') 
-                && $presensi && !$presensi->jam_pulang) {
+                if ($now->between(
+                    $akhirPulang->copy()->subMinutes(10),
+                    $akhirPulang->copy()->subMinutes(9)
+                )) {
+                    $this->kirimNotif($user, "10 menit lagi batas check-out berakhir");
+                }
 
-                $this->kirimNotif($user, "10 menit lagi batas check-out berakhir");
-            }
-
-            if ($currentTime == $akhirPulang->format('H:i') 
-                && $presensi && !$presensi->jam_pulang) {
-
-                $this->kirimNotif($user, "Batas check-out telah berakhir. Segera lakukan check-out.");
+                if ($now->between($akhirPulang, $akhirPulang->copy()->addMinute())) {
+                    $this->kirimNotif($user, "Batas check-out telah berakhir. Segera lakukan check-out.");
+                }
             }
         }
     }
 
     private function kirimNotif($user, $pesan)
     {
+        $today = now()->toDateString();
+
+        $alreadySent = MtNotifikasi::where('id_user', $user->id_user)
+            ->where('pesan', $pesan)
+            ->whereDate('created_at', $today)
+            ->exists();
+
+        if ($alreadySent) return;
+
         MtNotifikasi::create([
             'id_user' => $user->id_user,
             'pesan' => $pesan,
@@ -84,11 +98,15 @@ class SendPresensiReminder extends Command
         ]);
 
         if ($user->fcm_token) {
-            (new FirebaseService())->sendNotification(
+            $response = (new FirebaseService())->sendNotification(
                 $user->fcm_token,
                 'Reminder Presensi',
                 $pesan
             );
+
+            if (isset($response['error'])) {
+                $user->update(['fcm_token' => null]);
+            }
         }
     }
 

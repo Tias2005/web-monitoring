@@ -8,6 +8,7 @@ use Illuminate\Http\Client\Response;
 use App\Models\MtUser;
 use App\Models\MtNotifikasi;
 use Google\Client;
+use App\Services\FirebaseService;
 
 class MtNotifikasiController extends Controller
 {
@@ -50,43 +51,50 @@ class MtNotifikasiController extends Controller
         return response()->json(['status' => 'success', 'unread_count' => $count]);
     }
 
-    private function sendFcmNotification($fcmToken, $title, $body)
-    {
-        $client = new Client();
-        $client->setAuthConfig(storage_path('app/firebase/presensi-app-cc987-firebase-adminsdk-fbsvc-7d6a062631.json'));
-        $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+    // private function sendFcmNotification($fcmToken, $title, $body)
+    // {
+    //     $client = new Client();
+    //     $client->setAuthConfig(storage_path('app/firebase/presensi-app-cc987-firebase-adminsdk-fbsvc-7d6a062631.json'));
+    //     $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
 
-        $token = $client->fetchAccessTokenWithAssertion();
-        $accessToken = $token['access_token'];
+    //     $token = $client->fetchAccessTokenWithAssertion();
+    //     $accessToken = $token['access_token'];
 
-        $projectId = env('FIREBASE_PROJECT_ID');
+    //     $projectId = env('FIREBASE_PROJECT_ID');
 
-        /** @var Response $response */
-        $response = Http::withToken($accessToken)
-            ->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
-                "message" => [
-                    "token" => $fcmToken,
-                    "notification" => [
-                        "title" => $title,
-                        "body" => $body
-                    ]
-                ]
-            ]);
+    //     /** @var Response $response */
+    //     $response = Http::withToken($accessToken)
+    //         ->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
+    //             "message" => [
+    //                 "token" => $fcmToken,
+    //                 "notification" => [
+    //                     "title" => $title,
+    //                     "body" => $body
+    //                 ]
+    //             ]
+    //         ]);
 
-        return $response->json();
-    }
+    //     return $response->json();
+    // }
 
     public function testNotif($id)
     {
         $user = MtUser::find($id);
 
-        $result = $this->sendFcmNotification(
+        if (!$user || !$user->fcm_token) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Token tidak ditemukan'
+            ]);
+        }
+
+        $result = (new FirebaseService())->sendNotification(
             $user->fcm_token,
             "Reminder Presensi",
             "Jangan lupa presensi hari ini ya!"
         );
 
-        dd($result);
+        return response()->json($result);
     }
 
     public function delete($id)

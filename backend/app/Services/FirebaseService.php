@@ -32,7 +32,7 @@ class FirebaseService
         $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
 
         try {
-            $this->client->post($url, [
+            $response = $this->client->post($url, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $accessToken,
                     'Content-Type'  => 'application/json',
@@ -57,10 +57,17 @@ class FirebaseService
                     ],
                 ],
             ]);
+
+            return json_decode($response->getBody(), true);
+
         } catch (\Exception $e) {
             Log::error('FCM Error: ' . $e->getMessage());
-        }
 
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 
 }
