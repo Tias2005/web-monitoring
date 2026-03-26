@@ -83,6 +83,7 @@ class SendPresensiReminder extends Command
     private function kirimNotif($user, $pesan)
     {
         $today = now()->toDateString();
+        $judul = "Reminder Presensi";
 
         $alreadySent = MtNotifikasi::where('id_user', $user->id_user)
             ->where('pesan', $pesan)
@@ -93,6 +94,7 @@ class SendPresensiReminder extends Command
 
         MtNotifikasi::create([
             'id_user' => $user->id_user,
+            'judul' => $judul,
             'pesan' => $pesan,
             'status_baca' => 0,
         ]);
@@ -100,7 +102,7 @@ class SendPresensiReminder extends Command
         if ($user->fcm_token) {
             $response = (new FirebaseService())->sendNotification(
                 $user->fcm_token,
-                'Reminder Presensi',
+                $judul, 
                 $pesan
             );
 
