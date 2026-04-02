@@ -202,10 +202,32 @@ class AuthController extends Controller
             $user->embedding_vector = DB::raw("'" . $request->embedding . "'::double precision[]");        
             $user->save();
 
+            $user->load(['jabatan', 'divisi']);
+
+            $statusTeks = ($user->status_user == 1) ? "Aktif" : "Tidak Aktif";
+
+            $tglJoin = $user->tanggal_bergabung 
+                ? \Carbon\Carbon::parse($user->tanggal_bergabung)->format('Y-m-d') 
+                : '-';
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Wajah berhasil didaftarkan.',
-                'user' => $user
+                'user' => [
+                    'id_user'          => (string) $user->id_user,
+                    'nama_user'        => $user->nama_user,
+                    'email_user'       => $user->email_user,
+                    'foto_profil'      => $user->foto_profil,
+                    'embedding_vector' => $user->embedding_vector,
+                    'jabatan'          => $user->jabatan->nama_jabatan ?? '-',
+                    'divisi'           => $user->divisi->nama_divisi ?? '-',
+                    'tanggal_bergabung'=> $tglJoin,
+                    'no_telepon'       => (string) $user->no_telepon,
+                    'alamat'           => $user->alamat,
+                    'latitude_rumah'   => $user->latitude_rumah,
+                    'longitude_rumah'  => $user->longitude_rumah,
+                    'status_user'      => $statusTeks,
+                ]
             ], 200);
 
         } catch (\Exception $e) {
