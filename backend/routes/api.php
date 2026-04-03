@@ -30,6 +30,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/login-mobile', [AuthController::class, 'loginMobile']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/me', [AuthController::class, 'me']);
     Route::match(['post', 'put'], '/user/update/{id}', [AuthController::class, 'updateProfile']);
     Route::post('/user/register-face', [AuthController::class, 'registerFace']);
 

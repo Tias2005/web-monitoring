@@ -89,23 +89,8 @@ class AuthController extends Controller
         $tglJoin = $user->tanggal_bergabung ? \Carbon\Carbon::parse($user->tanggal_bergabung)->format('Y-m-d') : '-';
 
         return response()->json([
-            'message' => $message,
-            'token'   => $token, 
-            'user' => [
-                'id_user'          => (string) $user->id_user,
-                'nama_user'        => $user->nama_user,
-                'email_user'       => $user->email_user,
-                'foto_profil'      => $user->foto_profil,
-                'embedding_vector' => $user->embedding_vector,
-                'jabatan'          => $user->jabatan->nama_jabatan ?? '-',
-                'divisi'           => $user->divisi->nama_divisi ?? '-',
-                'tanggal_bergabung'=> $tglJoin,            
-                'no_telepon'       => (string) $user->no_telepon,
-                'alamat'           => $user->alamat,
-                'latitude_rumah'   => $user->latitude_rumah,
-                'longitude_rumah'  => $user->longitude_rumah,
-                'status_user'      => $statusTeks,
-            ]
+            'token' => $token,
+            'user'  => $this->formatUser($user)
         ]);
     }
 
@@ -172,7 +157,17 @@ class AuthController extends Controller
                 ? 'Password berhasil diubah. Silakan login ulang.' 
                 : 'Profil berhasil diperbarui',
             'password_changed' => $passwordChanged,
-            'user' => $userData
+            // 'user' => $userData
+            'user' => $this->formatUser($user)
+        ]);
+    }
+
+    public function me(Request $request)
+    {
+        $user = \App\Models\MtUser::find($request->user()->id_user);
+
+        return response()->json([
+            'user' => $this->formatUser($user)
         ]);
     }
 
@@ -213,21 +208,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Wajah berhasil didaftarkan.',
-                'user' => [
-                    'id_user'          => (string) $user->id_user,
-                    'nama_user'        => $user->nama_user,
-                    'email_user'       => $user->email_user,
-                    'foto_profil'      => $user->foto_profil,
-                    'embedding_vector' => $user->embedding_vector,
-                    'jabatan'          => $user->jabatan->nama_jabatan ?? '-',
-                    'divisi'           => $user->divisi->nama_divisi ?? '-',
-                    'tanggal_bergabung'=> $tglJoin,
-                    'no_telepon'       => (string) $user->no_telepon,
-                    'alamat'           => $user->alamat,
-                    'latitude_rumah'   => $user->latitude_rumah,
-                    'longitude_rumah'  => $user->longitude_rumah,
-                    'status_user'      => $statusTeks,
-                ]
+                'user' => $this->formatUser($user)
             ], 200);
 
         } catch (\Exception $e) {
@@ -326,6 +307,33 @@ class AuthController extends Controller
         DB::table('password_reset_otps')->where('email', $request->email_user)->delete();
 
         return response()->json(['message' => 'Password berhasil diubah. Silakan login kembali.']);
+    }
+
+    private function formatUser($user)
+    {
+        $user->load(['jabatan', 'divisi']);
+
+        $statusTeks = ($user->status_user == 1) ? "Aktif" : "Tidak Aktif";
+
+        $tglJoin = $user->tanggal_bergabung
+            ? \Carbon\Carbon::parse($user->tanggal_bergabung)->format('Y-m-d')
+            : '-';
+
+        return [
+            'id_user'           => (string) $user->id_user,
+            'nama_user'         => $user->nama_user,
+            'email_user'        => $user->email_user,
+            'foto_profil'       => $user->foto_profil,
+            'embedding_vector'  => $user->embedding_vector,
+            'jabatan'           => $user->jabatan->nama_jabatan ?? '-',
+            'divisi'            => $user->divisi->nama_divisi ?? '-',
+            'tanggal_bergabung' => $tglJoin,
+            'no_telepon'        => (string) $user->no_telepon,
+            'alamat'            => $user->alamat,
+            'latitude_rumah'    => $user->latitude_rumah,
+            'longitude_rumah'   => $user->longitude_rumah,
+            'status_user'       => $statusTeks,
+        ];
     }
 
 }
