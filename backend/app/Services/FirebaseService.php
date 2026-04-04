@@ -38,23 +38,18 @@ class FirebaseService
                     'Content-Type'  => 'application/json',
                 ],
                 'json' => [
-                    'message' => [
-                        'token' => $token,
-                        'notification' => [
-                            'title' => $title,
-                            'body'  => $body,
-                        ],
-                        'data' => [
-                            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                            'type' => 'reminder',
-                        ],
-                        'android' => [
-                            'priority' => 'high', 
-                            'notification' => [
-                                'channel_id' => 'high_importance_channel', 
-                            ],
-                        ],
+                'message' => [
+                    'token' => $token,
+                    'data' => [
+                        'title' => $title,
+                        'body'  => $body,
+                        'image' => 'https://subtly-nonimperious-tasia.ngrok-free.dev/logo/logo_aplikasi_presensi.png',
+                        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                     ],
+                    'android' => [
+                        'priority' => 'high',
+                    ],
+                ],
                 ],
             ]);
 

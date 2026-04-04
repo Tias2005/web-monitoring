@@ -66,7 +66,7 @@ class MtLokasiPresensiController extends Controller
                 $firebaseService->sendNotification(
                     $user->fcm_token,
                     $judul,
-                    "Radius WFO sekarang: " . $request->radius_wfo . "m. Cek detail lokasinya!"
+                    "Cek detail perubahan lokasinya!"
                 );
             }
         }
