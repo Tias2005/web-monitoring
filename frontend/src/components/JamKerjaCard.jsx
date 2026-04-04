@@ -5,14 +5,14 @@ const JamKerjaCard = ({ formJam, onInputChange, onSave }) => {
     <div className="schedule-card">
       <h3>Pengaturan Jam Kerja</h3>
       <div className="jam-grid">
-        <div className="form-group">
+        {/* <div className="form-group">
           <label>Jam Masuk Utama</label>
           <input type="time" name="jam_masuk" value={formJam.jam_masuk || ""} onChange={onInputChange} />
         </div>
         <div className="form-group">
           <label>Jam Pulang Utama</label>
           <input type="time" name="jam_pulang" value={formJam.jam_pulang || ""} onChange={onInputChange} />
-        </div>
+        </div> */}
         
         <div className="form-group">
           <label>Mulai Absen Masuk</label>
