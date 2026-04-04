@@ -91,8 +91,19 @@ export default function Penjadwalan() {
   };
 
   const handleToggleHari = async (id, currentStatus) => {
-    await api.put(`/hari-kerja/${id}`, { is_hari_kerja: !currentStatus });
-    fetchData();
+    try {
+      await api.put(`/hari-kerja/${id}`, { 
+        is_hari_kerja: !currentStatus 
+      });
+
+      Swal.fire(
+        "Berhasil!","Status hari kerja berhasil diperbarui.","success");
+
+      fetchData();
+
+    } catch (err) {
+      Swal.fire(
+        "Gagal!","Gagal memperbarui hari kerja.","error");}
   };
 
   return (

@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import Swal from "sweetalert2";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import '../styles/global.css';
 
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -26,7 +27,8 @@ export default function Pengaturan() {
     radius_wfo: 50,
     radius_wfh: 100,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -71,14 +73,18 @@ export default function Pengaturan() {
       return;
     }
 
+    setLoadingLocation(true);
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         fetchAddress(latitude, longitude);
+        setLoadingLocation(false);
       },
       (error) => {
         console.error(error);
         alert("Gagal mengambil lokasi.");
+        setLoadingLocation(false);
       }
     );
   };
@@ -86,16 +92,28 @@ export default function Pengaturan() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/lokasi-presensi/update", formData);
-      Swal.fire({
-        title: "Berhasil!",
-        text: "Konfigurasi lokasi presensi telah diperbarui.",
-        icon: "success",
-        confirmButtonColor: "#1e3978"
-      });
-      fetchData();
+      const response = await api.post("/lokasi-presensi/update", formData);
+
+      if (response.data.success) {
+        Swal.fire({
+          title: "Berhasil!",
+          text: "Konfigurasi lokasi presensi telah diperbarui.",
+          icon: "success",
+          confirmButtonColor: "#1e3978"
+        });
+        fetchData();
+      } else {
+        throw new Error("Response tidak sukses");
+      }
+
     } catch (error) {
-      Swal.fire("Gagal!", "Gagal menyimpan pengaturan.", "error");
+      console.error("ERROR UPDATE:", error.response || error);
+
+      Swal.fire(
+        "Gagal!",
+        error.response?.data?.message || "Gagal menyimpan pengaturan.",
+        "error"
+      );
     }
   };
 
@@ -166,6 +184,12 @@ export default function Pengaturan() {
               }}>
 
               <div style={{ marginBottom: "15px" }}>
+              {loadingLocation ? (
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div className="spinner" />
+                  <span>Melacak lokasi...</span>
+                </div>
+              ) : (
                 <button
                   type="button"
                   className="btn-secondary"
@@ -173,6 +197,7 @@ export default function Pengaturan() {
                 >
                   Ambil Lokasi Saat Ini
                 </button>
+              )}
               </div>
 
                 <MapContainer 
