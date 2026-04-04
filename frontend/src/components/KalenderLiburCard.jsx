@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // Tambahkan useState
+import React, { useState } from 'react'; 
 import Calendar from 'react-calendar';
 import Holidays from "date-holidays";
 import { useEffect } from "react";
@@ -8,18 +8,24 @@ const hd = new Holidays("ID");
 const holidays = hd.getHolidays(new Date().getFullYear());
 
 const KalenderLiburCard = ({ onDateClick, hariLibur, tileClassName }) => {
-  // State untuk menyimpan bulan yang sedang ditampilkan di kalender
   const [activeStartDate, setActiveStartDate] = useState(new Date());
 
   useEffect(() => {
-    api.post("/hari-libur/import", {
-      holidays: holidays
-    })
-    .then(res => console.log("Holiday imported"))
-    .catch(err => console.error("Import holiday error", err));
+    const currentYear = new Date().getFullYear();
+    const lastImportYear = localStorage.getItem("holiday_import_year");
+
+    if (lastImportYear != currentYear) {
+      api.post("/hari-libur/import", {
+        holidays: hd.getHolidays(currentYear)
+      })
+      .then(() => {
+        console.log("Holiday imported for year", currentYear);
+        localStorage.setItem("holiday_import_year", currentYear);
+      })
+      .catch(err => console.error("Import holiday error", err));
+    }
   }, []);
 
-  // Filter hariLibur hanya untuk bulan dan tahun yang sedang tampil
   const filteredHolidays = hariLibur.filter(libur => {
     const d = new Date(libur.tanggal_libur);
     return d.getMonth() === activeStartDate.getMonth() && 
@@ -32,10 +38,8 @@ const KalenderLiburCard = ({ onDateClick, hariLibur, tileClassName }) => {
       <div className="calendar-container">
         <Calendar 
           onClickDay={onDateClick}
-          // Gunakan tileClassName dari props yang dikirim Penjadwalan.jsx
           tileClassName={tileClassName} 
           locale="id-ID"
-          // Fungsi untuk mendeteksi perubahan bulan
           onActiveStartDateChange={({ activeStartDate }) => setActiveStartDate(activeStartDate)}
         />
         
