@@ -47,7 +47,39 @@ class MtHariLiburController extends Controller {
     }
 
     public function destroy($id) {
-        MtHariLibur::destroy($id);
+        $hariLibur = MtHariLibur::find($id);
+
+        if (!$hariLibur) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        $users = MtUser::where('status_user', 1)->get();
+
+        foreach ($users as $user) {
+            $judul = "Perubahan Hari Libur";
+            $pesan = "Pemberitahuan perubahan hari kerja.\n\n"
+                . "📅 Tanggal: " . Carbon::parse($hariLibur->tanggal_libur)->format('d M Y') . "\n"
+                . "❌ Status: Tidak lagi hari libur\n\n"
+                . "Silakan masuk kerja seperti biasa.";
+
+            MtNotifikasi::create([
+                'id_user' => $user->id_user,
+                'judul' => $judul,
+                'pesan' => $pesan,
+                'status_baca' => 0
+            ]);
+
+            if ($user->fcm_token) {
+                (new FirebaseService())->sendNotification(
+                    $user->fcm_token,
+                    $judul,
+                    "Tanggal " . Carbon::parse($hariLibur->tanggal_libur)->format('d M Y') . " sekarang masuk kerja"
+                );
+            }
+        }
+
+        $hariLibur->delete();
+
         return response()->json(['message' => 'Hari libur berhasil dihapus']);
     }
 
