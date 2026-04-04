@@ -17,14 +17,14 @@ class MtJamKerjaController extends Controller {
     public function update(Request $request, $id) {
         $jam = MtJamKerja::findOrFail($id);
         
-        $lamaMasuk = date('H:i', strtotime($jam->jam_masuk));
-        $lamaPulang = date('H:i', strtotime($jam->jam_pulang));
+        $lamaMasuk = date('H:i', strtotime($jam->mulai_absen_masuk));
+        $lamaPulang = date('H:i', strtotime($jam->mulai_absen_pulang));
         $lama = "{$lamaMasuk} - {$lamaPulang}";
         
         $jam->update($request->all());
         
-        $baruMasuk = date('H:i', strtotime($request->jam_masuk));
-        $baruPulang = date('H:i', strtotime($request->jam_pulang));
+        $baruMasuk = date('H:i', strtotime($request->mulai_absen_masuk));
+        $baruPulang = date('H:i', strtotime($request->mulai_absen_pulang));
         $baru = "{$baruMasuk} - {$baruPulang}";
 
         $users = MtUser::where('status_user', 1)->get();
