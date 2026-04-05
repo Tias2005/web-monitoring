@@ -18,6 +18,10 @@ export default function ResetPassword() {
       return Swal.fire("Gagal", "Konfirmasi password tidak cocok", "error");
     }
 
+    if (password.length < 6) {
+      return Swal.fire("Gagal", "Password minimal 6 karakter", "error");
+    }
+
     try {
       await api.post("/reset-password", {
         email_user: email,

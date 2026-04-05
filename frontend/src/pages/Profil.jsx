@@ -21,10 +21,30 @@ export default function Profil() {
     new_password_confirmation: ""
   });
 
-const handleUpdate = async (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
+
+    if (formData.password_before && !formData.new_password) {
+      return Swal.fire("Error", "Password baru harus diisi", "error");
+    }
+
+    if (formData.new_password && !formData.password_before) {
+      return Swal.fire("Error", "Password lama harus diisi", "error");
+    }
+
+    if (formData.new_password && formData.new_password.length < 6) {
+      return Swal.fire("Error", "Password baru minimal 6 karakter", "error");
+    }
+
+    if (
+      formData.new_password &&
+      formData.new_password !== formData.new_password_confirmation
+    ) {
+      return Swal.fire("Error", "Konfirmasi password tidak cocok", "error");
+    }
+
     const token = localStorage.getItem("token");
-    
+
     try {
       const res = await api.post(`/user/update/${user.id_user}`, formData, {
         headers: {
