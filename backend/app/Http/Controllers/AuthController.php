@@ -324,7 +324,7 @@ class AuthController extends Controller
             'nama_user'         => $user->nama_user,
             'email_user'        => $user->email_user,
             'foto_profil'       => $user->foto_profil,
-            'embedding_vector'  => $user->embedding_vector,
+            'embedding_vector' => $user->embedding_vector ? json_decode(json_encode($user->embedding_vector), true) : [],
             'jabatan'           => $user->jabatan->nama_jabatan ?? '-',
             'divisi'            => $user->divisi->nama_divisi ?? '-',
             'tanggal_bergabung' => $tglJoin,
