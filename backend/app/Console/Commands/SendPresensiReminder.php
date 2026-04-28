@@ -8,6 +8,7 @@ use App\Models\MtPresensi;
 use App\Models\MtJamKerja;
 use App\Models\MtNotifikasi;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use App\Services\FirebaseService;
 
 class SendPresensiReminder extends Command
@@ -80,7 +81,7 @@ class SendPresensiReminder extends Command
         }
     }
 
-    private function kirimNotif($user, $pesan)
+    private function kirimNotif(MtUser $user, string $pesan)
     {
         $today = now()->toDateString();
         $judul = "Reminder Presensi";
@@ -100,16 +101,47 @@ class SendPresensiReminder extends Command
         ]);
 
         if ($user->fcm_token) {
+            $response = $this->sendWithRetry($user, $judul, $pesan);
+
+            if (isset($response['error'])) {
+                $message = $response['message'] ?? '';
+
+                if (str_contains($message, 'UNREGISTERED') ||
+                    str_contains($message, 'NotRegistered')) {
+
+                    $user->update(['fcm_token' => null]);
+
+                    Log::warning("FCM token removed (invalid): {$user->id_user}");
+                }
+            }
+        }
+    }
+
+    private function sendWithRetry(MtUser $user, string $judul, string $pesan, int $maxRetry = 2): ?array
+    {
+        $attempt = 0;
+        $response = null;
+
+        while ($attempt < $maxRetry) {
+
             $response = (new FirebaseService())->sendNotification(
                 $user->fcm_token,
-                $judul, 
+                $judul,
                 $pesan
             );
 
-            if (isset($response['error'])) {
-                $user->update(['fcm_token' => null]);
+        if (!isset($response['error'])) {
+
+            if (isset($response['name'])) {
+                return $response;
             }
         }
+
+            $attempt++;
+            sleep(1); 
+        }
+
+        return $response;
     }
 
 }

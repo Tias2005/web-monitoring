@@ -12,7 +12,7 @@ use App\Services\FirebaseService;
 
 class MtNotifikasiController extends Controller
 {
-    public function getByUser($id_user)
+    public function getByUser(int $id_user)
     {
         $user = MtUser::where('id_user', $id_user)
             ->where('status_user', 1)
@@ -35,7 +35,7 @@ class MtNotifikasiController extends Controller
         ]);
     }
 
-    public function markAsRead($id)
+    public function markAsRead(int $id)
     {
         $notif = MtNotifikasi::find($id);
         if ($notif) {
@@ -46,38 +46,12 @@ class MtNotifikasiController extends Controller
         return response()->json(['message' => 'Data tidak ditemukan'], 404);
     }
 
-    public function getUnreadCount($id_user) {
+    public function getUnreadCount(int $id_user) {
         $count = MtNotifikasi::where('id_user', $id_user)->where('status_baca', 0)->count();
         return response()->json(['status' => 'success', 'unread_count' => $count]);
     }
 
-    // private function sendFcmNotification($fcmToken, $title, $body)
-    // {
-    //     $client = new Client();
-    //     $client->setAuthConfig(storage_path('app/firebase/presensi-app-cc987-firebase-adminsdk-fbsvc-7d6a062631.json'));
-    //     $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-
-    //     $token = $client->fetchAccessTokenWithAssertion();
-    //     $accessToken = $token['access_token'];
-
-    //     $projectId = env('FIREBASE_PROJECT_ID');
-
-    //     /** @var Response $response */
-    //     $response = Http::withToken($accessToken)
-    //         ->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
-    //             "message" => [
-    //                 "token" => $fcmToken,
-    //                 "notification" => [
-    //                     "title" => $title,
-    //                     "body" => $body
-    //                 ]
-    //             ]
-    //         ]);
-
-    //     return $response->json();
-    // }
-
-    public function testNotif($id)
+    public function testNotif(int $id)
     {
         $user = MtUser::find($id);
 
@@ -97,7 +71,7 @@ class MtNotifikasiController extends Controller
         return response()->json($result);
     }
 
-    public function delete($id)
+    public function delete(int $id)
     {
         $notif = MtNotifikasi::find($id);
 

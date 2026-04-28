@@ -23,7 +23,7 @@ class AuthController extends Controller
         $user = DB::table('mt_user')
             ->join('mt_role', 'mt_user.id_role', '=', 'mt_role.id_role')
             ->where('mt_user.email_user', $request->email_user)
-            ->select('mt_user.*', 'mt_role.nama_role')
+            ->select(['mt_user.*', 'mt_role.nama_role'])
             ->first();
 
         if (!$user) {
@@ -94,7 +94,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request, $id)
+    public function updateProfile(Request $request, int $id)
     {
         $user = MtUser::find($id);
 
@@ -309,7 +309,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Password berhasil diubah. Silakan login kembali.']);
     }
 
-    private function formatUser($user)
+    private function formatUser(MtUser $user)
     {
         $user->load(['jabatan', 'divisi']);
 
