@@ -23,13 +23,19 @@ const KaryawanModal = ({
 
         {(isDetail || isEdit) && (
           <div className="profile-container">
-            {formData.foto_profil ? (
-              <img 
-                src={`${import.meta.env.VITE_STORAGE_URL}/${formData.foto_profil}`}
-                alt="Profile" 
-                className="profile-pic" 
-              />
-            ) : (
+          {formData.foto_profil ? (
+            <>
+              {console.log("RAW:", formData.foto_profil)}
+              {console.log("FIXED:", formData.foto_profil.replace(/\\/g, "/"))}
+
+            <img 
+              src={`${import.meta.env.VITE_STORAGE_URL}/${formData.foto_profil.replace(/\\/g, "/")}`}
+              onError={(e) => console.log("GAGAL LOAD:", e.target.src)}
+              alt="Profile" 
+              className="profile-pic" 
+            />
+            </>
+          ) : (
               <div className="no-profile">👤</div>
             )}
             {isDetail && <span style={{fontWeight: 'bold', color: '#64748b'}}>{formData.nama_user}</span>}
