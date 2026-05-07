@@ -46,7 +46,8 @@ const Laporan = () => {
   };
 
   const handleExport = () => {
-    const url = `${import.meta.env.VITE_API_BASE_URL}/laporan/export?bulan=${bulan}&tahun=${tahun}`;
+    const url = 
+    `${import.meta.env.VITE_API_BASE_URL}/laporan/export?bulan=${bulan}&tahun=${tahun}`;
     window.open(url, '_blank');
   };
 
@@ -69,14 +70,17 @@ const Laporan = () => {
         <Header title="Laporan Rekapitulasi" />
 
         <div className="presensi-container">
-          <div className="filter-laporan-container" style={{ display: 'flex', gap: '10px', marginBottom: '20px', justifyContent: 'flex-end' }}>
+          <div className="filter-laporan-container" style={{ display: 'flex', gap: '10px', 
+            marginBottom: '20px', justifyContent: 'flex-end' }}>
             <button className="btn-export-top" onClick={handleExport}>
               EXPORT REKAP
             </button>
-            <select value={tahun} onChange={(e) => setTahun(e.target.value)} className="filter-select">
+            <select value={tahun} onChange={(e) => setTahun(e.target.value)} 
+            className="filter-select">
               {daftarTahun.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
-            <select value={bulan} onChange={(e) => setBulan(e.target.value)} className="filter-select">
+            <select value={bulan} onChange={(e) => setBulan(e.target.value)} 
+            className="filter-select">
               {daftarBulan.map(b => <option key={b.id} value={b.id}>{b.nama}</option>)}
             </select>
           </div>

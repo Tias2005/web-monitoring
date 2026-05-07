@@ -106,7 +106,7 @@ export default function Dashboard() {
                   </div>
                   <div className="time-info text-red">
                     <strong>{item.jam_masuk}</strong>
-                    <span>{item.menit_terlambat} Menit</span>
+                  <span>{item.menit_terlambat}</span>
                   </div>
                 </div>
               ))
