@@ -32,7 +32,7 @@ class MtPengajuanController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(int $id)
     {
         $pengajuan = MtPengajuan::with(['user.jabatan', 'user.divisi', 'kategori'])->find($id);
 
@@ -87,7 +87,8 @@ class MtPengajuanController extends Controller
                 if (!$saldo || $saldo->sisa < $durasi) {
                     return response()->json([
                         'success' => false, 
-                        'message' => 'Jatah cuti tidak mencukupi. Sisa: ' . ($saldo->sisa ?? 0) . ' hari.'
+                        'message' => 'Jatah cuti tidak mencukupi. Sisa: ' . 
+                        ($saldo->sisa ?? 0) . ' hari.'
                     ], 400);
                 }
 
@@ -165,7 +166,7 @@ class MtPengajuanController extends Controller
         }
     }
 
-    public function download($id)
+    public function download(int $id)
     {
         $pengajuan = MtPengajuan::findOrFail($id);
         

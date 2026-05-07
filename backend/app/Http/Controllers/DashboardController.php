@@ -63,18 +63,45 @@ class DashboardController extends Controller
                 ];
             });
 
+    $jamKerja = DB::table('mt_jam_kerja')->first();
+
+    $batasMasuk = $jamKerja
+        ? Carbon::parse($jamKerja->akhir_absen_masuk)
+        : Carbon::parse('08:00:00');
+
         $terlambatList = MtPresensi::with(['user.jabatan'])
             ->whereDate('tanggal', $hariIni)
             ->where('id_status_presensi', 2)
             ->get()
-            ->map(function($p) {
-                return [
-                    'nama' => $p->user->nama_user ?? 'Unknown',
-                    'jabatan' => $p->user->jabatan->nama_jabatan ?? '-',
-                    'jam_masuk' => $p->jam_masuk ? Carbon::parse($p->jam_masuk)->format('H:i') : '-',
-                    'menit_terlambat' => $p->jam_masuk ? max(0, Carbon::parse($p->jam_masuk)->diffInMinutes(Carbon::parse('08:00'))) : 0
-                ];
-            });
+            ->map(function($p) use ($batasMasuk) {
+
+            $jamMasuk = $p->jam_masuk
+                ? Carbon::parse($p->jam_masuk)
+                : null;
+
+            $selisihMenit = 0;
+
+            if ($jamMasuk && $jamMasuk->greaterThan($batasMasuk)) {
+                $selisihMenit = $batasMasuk->diffInMinutes($jamMasuk);
+            }
+
+            $jam = floor($selisihMenit / 60);
+            $menit = $selisihMenit % 60;
+
+            $formatTerlambat =
+                $jam > 0
+                    ? "{$jam} Jam {$menit} Menit"
+                    : "{$menit} Menit";
+
+            return [
+                'nama' => $p->user->nama_user ?? 'Unknown',
+                'jabatan' => $p->user->jabatan->nama_jabatan ?? '-',
+                'jam_masuk' => $jamMasuk
+                    ? $jamMasuk->format('H:i')
+                    : '-',
+                'menit_terlambat' => $formatTerlambat
+            ];
+        });
 
         $pengajuanList = MtPengajuan::with(['user.divisi', 'kategori'])
             ->whereDate('tanggal_mulai', '<=', $hariIni)
@@ -105,7 +132,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function getUserStats($id_user)
+    public function getUserStats(int $id_user)
     {
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();

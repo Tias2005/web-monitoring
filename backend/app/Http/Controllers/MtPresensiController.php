@@ -15,9 +15,45 @@ class MtPresensiController extends Controller
     {
         $tanggal = $request->tanggal ?? Carbon::today()->toDateString();
 
-        $presensi = MtPresensi::with(['user.jabatan', 'user.divisi', 'statusPresensi', 'kategoriKerja'])
-                ->whereDate('tanggal', $tanggal)
-                ->get();
+        $jamKerja = DB::table('mt_jam_kerja')
+            ->where('is_active', true)
+            ->first();
+
+        $batasMasuk = $jamKerja
+            ? Carbon::parse($jamKerja->akhir_absen_masuk)
+            : Carbon::parse('08:00:00');
+
+        $presensi = MtPresensi::with([
+                'user.jabatan',
+                'user.divisi',
+                'statusPresensi',
+                'kategoriKerja'
+            ])
+            ->whereDate('tanggal', $tanggal)
+            ->get()
+            ->map(function ($p) use ($batasMasuk) {
+
+                $keterlambatan = '0 Menit';
+
+                if ($p->id_status_presensi == 2 && $p->jam_masuk) {
+
+                    $jamMasuk = Carbon::parse($p->jam_masuk);
+
+                    $selisihMenit = $batasMasuk->diffInMinutes($jamMasuk);
+
+                    $jam = floor($selisihMenit / 60);
+                    $menit = $selisihMenit % 60;
+
+                    $keterlambatan =
+                        $jam > 0
+                            ? "{$jam} Jam {$menit} Menit"
+                            : "{$menit} Menit";
+                }
+
+                $p->keterlambatan = $keterlambatan;
+
+                return $p;
+            });
 
         $stats = [
             'tepat_waktu' => $presensi->where('id_status_presensi', 1)->count(),
@@ -35,7 +71,7 @@ class MtPresensiController extends Controller
         ]);
     }
 
-    public function getTodayStatus($id_user) 
+    public function getTodayStatus(int $id_user) 
     {
         $now = Carbon::now();
         $today = $now->toDateString();
@@ -92,7 +128,7 @@ class MtPresensiController extends Controller
         ]);
     }
 
-    public function getCalendarEvents(Request $request, $id_user)
+    public function getCalendarEvents(Request $request, int $id_user)
     {
         $month = $request->query('month', date('m'));
         $year = $request->query('year', date('Y'));
@@ -283,7 +319,7 @@ class MtPresensiController extends Controller
         }
     }
 
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    private function calculateDistance(float $lat1, float $lon1, float $lat2, float $lon2)
     {
         $earthRadius = 6371000; // dalam meter
 
