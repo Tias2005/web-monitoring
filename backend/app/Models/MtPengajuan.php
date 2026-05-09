@@ -17,6 +17,10 @@ class MtPengajuan extends Model
         'jam_mulai', 'jam_selesai', 'alasan', 'lampiran', 'status_pengajuan'
     ];
 
+    protected $casts = [
+        'lampiran' => 'array',
+    ];
+
     public function user()
     {
         return $this->belongsTo(MtUser::class, 'id_user', 'id_user');
@@ -25,5 +29,10 @@ class MtPengajuan extends Model
     public function kategori()
     {
         return $this->belongsTo(MtKategoriPengajuan::class, 'id_kategori_pengajuan', 'id_kategori_pengajuan');
+    }
+
+    public function lampiranFiles()
+    {
+        return $this->hasMany(MtPengajuanLampiran::class, 'id_pengajuan', 'id_pengajuan');
     }
 }

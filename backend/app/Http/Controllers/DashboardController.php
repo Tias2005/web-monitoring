@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\MtUser;
 use App\Models\MtPresensi;
 use App\Models\MtPengajuan;
+use App\Models\MtHariKerja;
 use App\Models\MtDivisi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -30,19 +31,27 @@ class DashboardController extends Controller
 
         $startOfWeek = Carbon::now()->startOfWeek();
         $trenMingguan = [];
-        for ($i = 0; $i < 5; $i++) {
-            $date = $startOfWeek->copy()->addDays($i)->toDateString();
-            $namaHari = $startOfWeek->copy()->addDays($i)->translatedFormat('l');
-            
+
+        $hariKerja = MtHariKerja::where('is_hari_kerja', 1)
+            ->orderBy('hari_ke', 'asc')
+            ->get();
+
+        foreach ($hariKerja as $hari) {
+
+            $date = $startOfWeek->copy()->addDays($hari->hari_ke)->toDateString();
+            $namaHari = $hari->nama_hari;
+
             $trenMingguan[] = [
                 'hari' => $namaHari,
                 'hadir' => MtPresensi::whereDate('tanggal', $date)->count(),
+
                 'izin' => MtPengajuan::whereHas('kategori', function($q) {
                         $q->where('nama_pengajuan', 'LIKE', '%Izin%');
                     })
                     ->whereDate('tanggal_mulai', '<=', $date)
                     ->whereDate('tanggal_selesai', '>=', $date)
                     ->count(),
+
                 'cuti' => MtPengajuan::whereHas('kategori', function($q) {
                         $q->where('nama_pengajuan', 'LIKE', '%Cuti%');
                     })

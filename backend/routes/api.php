@@ -73,9 +73,11 @@ Route::get('/presensi/today/{id_user}', [MtPresensiController::class, 'getTodayS
 Route::get('/presensi/calendar/{id_user}', [MtPresensiController::class, 'getCalendarEvents']);
 
 Route::prefix('pengajuan')->group(function () {
+
     Route::get('/', [MtPengajuanController::class, 'index']);
     Route::get('/{id}', [MtPengajuanController::class, 'show']);
-    Route::get('/download/{id}', [MtPengajuanController::class, 'download']);
+    Route::get('/download/{id}/{index?}', [MtPengajuanController::class, 'download']);
+    Route::get('/download-file/{filename}', [MtPengajuanController::class, 'downloadFile']);
     Route::post('/store', [MtPengajuanController::class, 'store']);
 });
 

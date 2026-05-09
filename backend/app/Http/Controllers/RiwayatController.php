@@ -32,17 +32,25 @@ class RiwayatController extends Controller
             ->orderBy('tanggal', 'desc')
             ->get();
 
-        $pengajuan = MtPengajuan::where('id_user', $id_user)
-            ->where(function($q) use ($bulan, $tahun) {
-                $q->whereMonth('tanggal_mulai', $bulan)->whereYear('tanggal_mulai', $tahun)
-                ->orWhereMonth('tanggal_selesai', $bulan)->whereYear('tanggal_selesai', $tahun);
-            })
-            ->with([
-                'kategori',
-                'user.divisi',
-                'user.jabatan'
-            ])
-            ->get();
+            $pengajuan = MtPengajuan::where('id_user', $id_user)
+                ->with([
+                    'kategori',
+                    'user.divisi',
+                    'user.jabatan',
+                    'lampiranFiles'
+                ])
+                ->get()
+                ->map(function ($item) {
+                    $item->lampiran = $item->lampiranFiles->map(function ($f) {
+                        return [
+                            'file' => $f->nama_file,
+                            'nama' => $f->nama_asli
+                        ];
+                    });
+
+                    unset($item->lampiranFiles);
+                    return $item;
+                });
 
         $totalIzin = 0; $totalCuti = 0; $totalLemburMenit = 0;
 

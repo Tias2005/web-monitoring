@@ -7,6 +7,7 @@ use App\Models\MtPengajuan;
 use App\Models\MtJatahCutiKaryawan;
 use App\Models\MtUser;
 use App\Models\MtNotifikasi;
+use App\Models\MtPengajuanLampiran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -19,11 +20,21 @@ class MtPengajuanController extends Controller
     {
         $tanggal = $request->tanggal ?? Carbon::today()->toDateString();
 
-        $data = MtPengajuan::with(['user', 'kategori'])
+        $data = MtPengajuan::with([ 'user.jabatan', 'user.divisi', 'kategori', 'lampiranFiles'])
             ->whereDate('tanggal_mulai', '<=', $tanggal)
             ->whereDate('tanggal_selesai', '>=', $tanggal)
             ->orderBy('create_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->lampiran = $item->lampiranFiles->map(function($f){
+                    return [
+                        'file' => $f->nama_file,
+                        'nama' => $f->nama_asli
+                    ];
+                });
+                unset($item->lampiranFiles);
+                return $item;
+            });
 
         return response()->json([
             'success' => true,
@@ -34,18 +45,31 @@ class MtPengajuanController extends Controller
 
     public function show(int $id)
     {
-        $pengajuan = MtPengajuan::with(['user.jabatan', 'user.divisi', 'kategori'])->find($id);
+        $pengajuan = MtPengajuan::with([
+            'user.jabatan',
+            'user.divisi',
+            'kategori',
+            'lampiranFiles'
+        ])->find($id);
 
         if (!$pengajuan) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
+
+        $pengajuan->lampiran = $pengajuan->lampiranFiles->map(function($f){
+            return [
+                'file' => $f->nama_file,
+                'nama' => $f->nama_asli
+            ];
+        });
+        unset($pengajuan->lampiranFiles);
 
         return response()->json([
             'success' => true,
             'data'    => $pengajuan
         ]);
     }
-
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -54,8 +78,28 @@ class MtPengajuanController extends Controller
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
             'alasan' => 'required',
-            'lampiran' => 'nullable|file|mimes:pdf,jpeg,png,jpg,doc,docx|max:2048'
+
+            'lampiran.*' =>
+                'file|mimes:pdf,jpeg,png,jpg,doc,docx|max:2048'
         ]);
+
+        $totalSize = 0;
+
+        $uploadedFiles = $request->file('lampiran');
+
+        if ($uploadedFiles) {
+
+            if (!is_array($uploadedFiles)) {
+                $uploadedFiles = [$uploadedFiles];
+            }
+
+            if (count($uploadedFiles) > 5) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Maksimal 5 lampiran'
+                ], 400);
+            }
+        }
 
         $user = MtUser::find($request->id_user);
         if (!$user) {
@@ -100,13 +144,6 @@ class MtPengajuanController extends Controller
                 $sisaCutiTersisa = $saldo->sisa;
             }
 
-            $fileName = null;
-            if ($request->hasFile('lampiran')) {
-                $file = $request->file('lampiran');
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs('pengajuan', $fileName, 'public');
-            }
-
             $pengajuan = MtPengajuan::create([
                 'id_user' => $request->id_user,
                 'id_kategori_pengajuan' => $request->id_kategori_pengajuan,
@@ -115,9 +152,31 @@ class MtPengajuanController extends Controller
                 'jam_mulai' => $request->jam_mulai,
                 'jam_selesai' => $request->jam_selesai,
                 'alasan' => $request->alasan,
-                'lampiran' => $fileName,
                 'status_pengajuan' => 'Disetujui',
             ]);
+
+            if ($request->hasFile('lampiran')) {
+
+                $uploadedFiles = $request->file('lampiran');
+
+                if (!is_array($uploadedFiles)) {
+                    $uploadedFiles = [$uploadedFiles];
+                }
+
+                foreach ($uploadedFiles as $file) {
+                    $originalName = $file->getClientOriginalName();
+                    $fileName = time() . '_' . uniqid() . '_' . $originalName;
+
+                    $file->storeAs('pengajuan', $fileName, 'public');
+
+                    MtPengajuanLampiran::create([
+                        'id_pengajuan' => $pengajuan->id_pengajuan,
+                        'nama_file' => $fileName,
+                        'nama_asli' => $originalName
+                    ]);
+                }
+            }
+
 
             $judul = "Pengajuan $namaKategori Disetujui";
             
@@ -166,23 +225,53 @@ class MtPengajuanController extends Controller
         }
     }
 
-    public function download(int $id)
+    public function download(int $id, int $index = 0)
     {
-        $pengajuan = MtPengajuan::findOrFail($id);
-        
-        if (!$pengajuan->lampiran) {
-            return response()->json(['message' => 'Lampiran tidak tersedia'], 404);
-        }
+        $files = MtPengajuanLampiran::where('id_pengajuan', $id)->get();
 
-        $exists = Storage::disk('public')->exists('pengajuan/' . $pengajuan->lampiran);
-
-        if (!$exists) {
+        if ($files->isEmpty()) {
             return response()->json([
-                'message' => 'File fisik tidak ditemukan',
-                'debug_path' => storage_path('app/public/pengajuan/' . $pengajuan->lampiran)
+                'message' => 'Lampiran tidak tersedia'
             ], 404);
         }
 
-        return response()->download(storage_path('app/public/pengajuan/' . $pengajuan->lampiran));
+        if (!isset($files[$index])) {
+            return response()->json([
+                'message' => 'File tidak ditemukan'
+            ], 404);
+        }
+
+        $fileName = $files[$index]->nama_file;
+        $filePath = 'pengajuan/' . $fileName;
+
+        if (!Storage::disk('public')->exists($filePath)) {
+            return response()->json([
+                'message' => 'File fisik tidak ditemukan',
+                'debug_path' => storage_path('app/public/' . $filePath)
+            ], 404);
+        }
+
+        return response()->download(
+            storage_path('app/public/' . $filePath),
+            $files[$index]->nama_asli 
+        );
+    }
+
+    public function downloadFile(string $filename)
+    {
+        $file = MtPengajuanLampiran::where('nama_file', $filename)->firstOrFail();
+
+        $path = 'pengajuan/' . $file->nama_file;
+
+        if (!Storage::disk('public')->exists($path)) {
+            return response()->json([
+                'message' => 'File tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->download(
+            storage_path('app/public/' . $path),
+            $file->nama_asli 
+        );
     }
 }

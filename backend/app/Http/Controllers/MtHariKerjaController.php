@@ -15,7 +15,7 @@ class MtHariKerjaController extends Controller {
         return response()->json(MtHariKerja::orderBy('hari_ke', 'asc')->get());
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, int  $id) {
         $hari = MtHariKerja::findOrFail($id);
         
         $namaHari = [
