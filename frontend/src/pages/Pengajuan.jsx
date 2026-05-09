@@ -53,8 +53,11 @@ const Pengajuan = () => {
     }
   };
 
-  const handleDownload = (id) => {
-    window.open(`${import.meta.env.VITE_API_BASE_URL}/pengajuan/download/${id}`, "_blank");
+  const handleDownload = (filename) => {
+    window.open(
+      `${import.meta.env.VITE_API_BASE_URL}/pengajuan/download-file/${filename}`,
+      "_blank"
+    );
   };
 
   return (

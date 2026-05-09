@@ -11,7 +11,11 @@ const PengajuanDetail = ({ detail, onDownload }) => {
     );
   }
 
-  const isLembur = detail.kategori?.nama_pengajuan.toLowerCase().includes('lembur');
+  const isLembur = detail.kategori?.nama_pengajuan
+    ?.toLowerCase()
+    .includes('lembur');
+
+  const lampiranList = detail.lampiran || [];
 
   return (
     <div className="detail-panel">
@@ -20,9 +24,9 @@ const PengajuanDetail = ({ detail, onDownload }) => {
         <div className="detail-row"><span>Nama</span><strong>
           {detail.user?.nama_user}</strong></div>
         <div className="detail-row"><span>Divisi</span><strong>
-          {detail.user?.divisi?.nama_divisi || 'Teknis'}</strong></div>
+          {detail.user?.divisi?.nama_divisi ?? '-'}</strong></div>
         <div className="detail-row"><span>Jabatan</span><strong>
-          {detail.user?.jabatan?.nama_jabatan || 'Developer'}</strong></div>
+          {detail.user?.jabatan?.nama_jabatan ?? '-'}</strong></div>
         <div className="detail-row"><span>Tipe</span><strong>
           {detail.kategori?.nama_pengajuan}</strong></div>
         {isLembur ? (
@@ -48,17 +52,19 @@ const PengajuanDetail = ({ detail, onDownload }) => {
         <div style={{ marginTop: '25px' }}>
           <span style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 'bold' }}>
             Dokumen Pendukung</span>
-          {detail.lampiran ? (
-            <div className="download-box">
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ fontSize: '1.2rem', marginRight: '10px' }}>📄</span>
-                <span style={{ fontSize: '0.9rem', color: '#1e293b' }}>
-                  {detail.lampiran}</span>
-              </div>
-              <button className="btn-download-action" onClick={() => 
-                onDownload(detail.id_pengajuan)}>
-                Download
-              </button>
+          {lampiranList.length > 0 ? (
+            <div style={{ marginTop: '10px' }}>
+                {lampiranList.map((item, index) => (
+                  <div key={index} className="download-box">
+                    
+                    <span style={{ color: '#1e293b', fontSize: '0.9rem' }}>{item.nama}</span>  
+
+                    <button onClick={() => onDownload(item.file)}>
+                      Download
+                    </button>
+
+                  </div>
+                ))}
             </div>
           ) : (
             <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem', marginTop: '10px' }}>Tidak ada lampiran</p>
