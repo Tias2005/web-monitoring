@@ -85,7 +85,7 @@ export default function Login() {
           </div>
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? "Memproses..." : "Sign In"}
+            {loading ? "Memproses..." : "Log In"}
           </button>
         </form>
 
