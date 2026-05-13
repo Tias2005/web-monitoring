@@ -14,7 +14,7 @@ class MtJamKerjaController extends Controller {
         return response()->json(MtJamKerja::first()); 
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, int $id) {
         $jam = MtJamKerja::findOrFail($id);
         
         $lamaMasuk = date('H:i', strtotime($jam->mulai_absen_masuk));

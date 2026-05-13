@@ -29,7 +29,7 @@ class DashboardController extends Controller
             ->whereDate('tanggal_selesai', '>=', $hariIni)
             ->count();
 
-        $startOfWeek = Carbon::now()->startOfWeek();
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
         $trenMingguan = [];
 
         $hariKerja = MtHariKerja::where('is_hari_kerja', 1)
