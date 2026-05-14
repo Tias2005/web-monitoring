@@ -68,11 +68,11 @@ class KaryawanController extends Controller
         }
     }
 
-    public function show($id) {
+    public function show(int $id) {
         return MtUser::findOrFail($id);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $karyawan = MtUser::findOrFail($id);
 
@@ -92,7 +92,7 @@ class KaryawanController extends Controller
         return response()->json(['message' => 'Data karyawan berhasil diperbarui', 'data' => $karyawan]);
     }
 
-    public function destroy($id) {
+    public function destroy(int $id) {
         MtUser::destroy($id);
         return response()->json(['message' => 'Karyawan dihapus']);
     }
