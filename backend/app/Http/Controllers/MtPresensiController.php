@@ -77,7 +77,17 @@ class MtPresensiController extends Controller
         $today = $now->toDateString();
         $dayOfWeek = $now->dayOfWeek;
 
+        MtPresensi::where('id_user', $id_user)
+            ->whereNull('jam_pulang')
+            ->whereDate('tanggal', '<', $today)
+            ->update([
+                'jam_pulang' => '23:59:59',
+                'lokasi_pulang' => 'Checkout otomatis oleh sistem',
+                'is_auto_checkout' => true,
+            ]);
+
         $isLibur = \App\Models\MtHariLibur::where('tanggal_libur', $today)->first();
+
         if ($isLibur) {
             return response()->json([
                 'status' => 'holiday',
@@ -87,6 +97,7 @@ class MtPresensiController extends Controller
         }
 
         $hariKerja = \App\Models\MtHariKerja::where('hari_ke', $dayOfWeek)->first();
+
         if (!$hariKerja || !$hariKerja->is_hari_kerja) {
             return response()->json([
                 'status' => 'off_day',

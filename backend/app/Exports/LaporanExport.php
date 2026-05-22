@@ -8,6 +8,7 @@ use App\Models\MtPengajuan;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use App\Models\MtJatahCutiKaryawan;
 use Carbon\Carbon;
 
 class LaporanExport implements FromCollection, WithHeadings, WithMapping
@@ -65,6 +66,10 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
                 }
             }
 
+                    $jatahCuti = MtJatahCutiKaryawan::where('id_user', $user->id_user)
+                        ->where('tahun', $this->tahun)
+                        ->first();
+
             return [
                 'nama'      => $user->nama_user,
                 'jabatan'   => $user->jabatan->nama_jabatan ?? '-',
@@ -77,6 +82,7 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
                 'wfo'       => $presensi->where('id_kategori_kerja', 1)->count(),
                 'wfh'       => $presensi->where('id_kategori_kerja', 2)->count(),
                 'wfa'       => $presensi->where('id_kategori_kerja', 3)->count(),
+                'sisa_cuti' => $jatahCuti ? $jatahCuti->sisa : 0,
             ];
         });
     }
@@ -94,7 +100,8 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
             'Lembur (Jam)',
             'WFO (Hari)',
             'WFH (Hari)',
-            'WFA (Hari)'
+            'WFA (Hari)',
+            'Sisa Cuti (Hari)'
         ];
     }
 
@@ -111,7 +118,8 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
             $row['lembur'],
             $row['wfo'],
             $row['wfh'],
-            $row['wfa']
+            $row['wfa'],
+            $row['sisa_cuti']
         ];
     }
 }

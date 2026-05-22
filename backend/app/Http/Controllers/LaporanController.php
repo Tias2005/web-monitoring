@@ -10,6 +10,7 @@ use App\Exports\LaporanExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
+use App\Models\MtJatahCutiKaryawan;
 
 class LaporanController extends Controller
 {
@@ -62,6 +63,10 @@ class LaporanController extends Controller
                 }
             }
 
+            $jatahCuti = MtJatahCutiKaryawan::where('id_user', $user->id_user)
+                ->where('tahun', $tahun)
+                ->first();
+
             return [
                 'id_user'   => $user->id_user,
                 'nama'      => $user->nama_user,
@@ -75,6 +80,7 @@ class LaporanController extends Controller
                 'wfo'       => $presensi->where('id_kategori_kerja', 1)->count(),
                 'wfh'       => $presensi->where('id_kategori_kerja', 2)->count(),
                 'wfa'       => $presensi->where('id_kategori_kerja', 3)->count(),
+                'sisa_cuti' => $jatahCuti ? $jatahCuti->sisa : 0,
             ];
         });
 

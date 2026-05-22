@@ -25,6 +25,7 @@ class MtPresensi extends Model
         'latitude_pulang',
         'longitude_pulang',
         'lokasi_pulang',
+        'is_auto_checkout',
 
         'id_kategori_kerja',
         'foto_masuk',
@@ -32,7 +33,6 @@ class MtPresensi extends Model
         
         'created_at',
         'updated_at',
-        ''        
     ];
 
     public function user()
