@@ -7,7 +7,9 @@ use App\Models\MtPresensi;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use App\Models\MtNotifikasi;
+use App\Services\FirebaseService;
+use App\Models\MtUser;
 
 class MtPresensiController extends Controller
 {
@@ -77,14 +79,44 @@ class MtPresensiController extends Controller
         $today = $now->toDateString();
         $dayOfWeek = $now->dayOfWeek;
 
-        MtPresensi::where('id_user', $id_user)
+        $presensiBelumCheckout = MtPresensi::where('id_user', $id_user)
             ->whereNull('jam_pulang')
             ->whereDate('tanggal', '<', $today)
-            ->update([
+            ->get();
+
+        foreach ($presensiBelumCheckout as $presensi) {
+
+            $presensi->update([
                 'jam_pulang' => '23:59:59',
                 'lokasi_pulang' => 'Checkout otomatis oleh sistem',
                 'is_auto_checkout' => true,
             ]);
+
+            $tanggalPresensi = Carbon::parse($presensi->tanggal)->format('d M Y');
+
+            $judul = "Checkout Otomatis";
+            
+            $pesan = "Anda lupa melakukan checkout pada tanggal "
+                . $tanggalPresensi
+                . ". Sistem otomatis melakukan checkout pada pukul 23:59.";
+
+            MtNotifikasi::create([
+                'id_user' => $id_user,
+                'judul' => $judul,
+                'pesan' => $pesan,
+                'status_baca' => 0
+            ]);
+
+            $user = MtUser::find($id_user);
+
+            if ($user && $user->fcm_token) {
+                (new FirebaseService())->sendNotification(
+                    $user->fcm_token,
+                    $judul,
+                    $pesan
+                );
+            }
+        }
 
         $isLibur = \App\Models\MtHariLibur::where('tanggal_libur', $today)->first();
 
